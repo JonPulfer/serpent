@@ -13,6 +13,13 @@ import (
 	"fmt"
 )
 
+// Functions used in the formal description of the cipher
+
+// Function S applies S-Box number 'box' to 4-bit bitstring 'input'
+// and return a 4-bit bitstring.
+func S(box SBox, input byte) byte {
+	return SBoxBitstring[box%8][input]
+}
+
 func main() {
-	fmt.Println("Start")
 }
