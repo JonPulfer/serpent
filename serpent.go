@@ -363,14 +363,13 @@ func init() {
 // they will "look" negative and won't work.
 //
 // EXAMPLE: Bitstring.FromInt(10, 8) -> "01010000"
-func (b Bitstring) FromInt(n int, l int) Bitstring {
+func (b Bitstring) FromInt(n int, l int) (result Bitstring) {
 	if l < 1 {
 		fmt.Printf("a bitstring must have a least 1 char\n")
 	}
 	if n < 0 {
 		fmt.Printf("bitstring representation undefined for negative numbers\n")
 	}
-	var result Bitstring
 	for n > 0 {
 		if n&1 == 1 {
 			result = result + "1"
@@ -382,18 +381,17 @@ func (b Bitstring) FromInt(n int, l int) Bitstring {
 	for len(result) < l {
 		result = result + "0"
 	}
-	return result
+	return
 }
 
 // Return the xor of two bitstrings of equal length as another
 // bitstring of the same length.
 //
 // EXAMPLE: Bitstring.BinaryXor("10010", "00011") -> "10001"
-func (s1 Bitstring) BinaryXor(s2 Bitstring) Bitstring {
+func (s1 Bitstring) BinaryXor(s2 Bitstring) (result Bitstring) {
 	if len(s1) != len(s2) {
 		fmt.Printf("cannot binaryXor bitstrings of different lengths\n")
 	}
-	var result Bitstring
 	for i, b := range s1 {
 		if string(b) == string(s2[i]) {
 			result = result + "0"
@@ -401,7 +399,22 @@ func (s1 Bitstring) BinaryXor(s2 Bitstring) Bitstring {
 			result = result + "1"
 		}
 	}
-	return result
+	return
+}
+
+// Return the xor of an arbitrary number of bitstrings of the same
+// length as another bitstring of the same length.
+//
+// EXAMPLE: Bitstring.Xor([]Bitstring{"01", "11", "10"}) -> "00"
+func (b Bitstring) Xor(args []Bitstring) (result Bitstring) {
+	if len(args) == 0 {
+		fmt.Printf("at least one argument needed\n")
+	}
+	result = args[0]
+	for _, arg := range args[1:] {
+		result = result.BinaryXor(arg)
+	}
+	return
 }
 
 // Functions used in the formal description of the cipher
