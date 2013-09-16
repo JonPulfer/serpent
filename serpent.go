@@ -352,20 +352,18 @@ func init() {
 }
 
 // Methods for Bitstring
+
+// Translate n from integer to bitstring, padding it with 0s as
+// necessary to reach the minimum length 'minlen'. 'n' must be >= 0 since
+// the bitstring format is undefined for negative integers.
+//
+// Note that, while the bitstring format can represent arbitrarily large numbers,
+// this is not so for Go's normal integer type: on a 32-bit machine,
+// values of n >= 2^31 need to be expressed as int64 or
+// they will "look" negative and won't work.
+//
+// EXAMPLE: Bitstring.FromInt(10, 8) -> "01010000"
 func (b Bitstring) FromInt(n int, l int) Bitstring {
-	/*
-	   Translate n from integer to bitstring, padding it with 0s as
-	   necessary to reach the minimum length 'minlen'. 'n' must be >= 0 since
-	   the bitstring format is undefined for negative integers.
-
-	   Note that, while the bitstring format can represent arbitrarily large numbers,
-	   this is not so for Go's normal integer type: on a 32-bit machine,
-	   values of n >= 2^31 need to be expressed as int64 or
-	   they will "look" negative and won't work.
-
-	   EXAMPLE: bitstring(10, 8) -> "01010000"
-	*/
-
 	if l < 1 {
 		fmt.Printf("a bitstring must have a least 1 char\n")
 	}
@@ -383,6 +381,25 @@ func (b Bitstring) FromInt(n int, l int) Bitstring {
 	}
 	for len(result) < l {
 		result = result + "0"
+	}
+	return result
+}
+
+// Return the xor of two bitstrings of equal length as another
+// bitstring of the same length.
+//
+// EXAMPLE: Bitstring.BinaryXor("10010", "00011") -> "10001"
+func (s1 Bitstring) BinaryXor(s2 Bitstring) Bitstring {
+	if len(s1) != len(s2) {
+		fmt.Printf("cannot binaryXor bitstrings of different lengths\n")
+	}
+	var result Bitstring
+	for i, b := range s1 {
+		if string(b) == string(s2[i]) {
+			result = result + "0"
+		} else {
+			result = result + "1"
+		}
 	}
 	return result
 }
