@@ -15,7 +15,7 @@ import (
 
 type SBox []int
 type Ttable []int
-type bitstring string
+type Bitstring string
 
 // Data tables
 
@@ -331,6 +331,10 @@ var LTTableInverse Ttable = []int{
 	[]int{4, 27, 86, 97, 113, 115, 127},
 }
 
+// Constants
+var phi string = "0x9e3779b9L"
+var r int = 32
+
 // Initialise variables when this package is imported.
 func init() {
 	for index, line := range SBoxDecimalTable {
@@ -345,6 +349,42 @@ func init() {
 		SBoxBitstring = append(SBoxBitstring, dict)
 		SBoxBitstringInverse = append(SBoxBitstringInverse, inverseDict)
 	}
+}
+
+// Methods for Bitstring
+func (b Bitstring) FromInt(n int, l int) Bitstring {
+	/*
+	   Translate n from integer to bitstring, padding it with 0s as
+	   necessary to reach the minimum length 'minlen'. 'n' must be >= 0 since
+	   the bitstring format is undefined for negative integers.
+
+	   Note that, while the bitstring format can represent arbitrarily large numbers,
+	   this is not so for Go's normal integer type: on a 32-bit machine,
+	   values of n >= 2^31 need to be expressed as int64 or
+	   they will "look" negative and won't work.
+
+	   EXAMPLE: bitstring(10, 8) -> "01010000"
+	*/
+
+	if l < 1 {
+		fmt.Printf("a bitstring must have a least 1 char\n")
+	}
+	if n < 0 {
+		fmt.Printf("bitstring representation undefined for negative numbers\n")
+	}
+	var result Bitstring
+	for n > 0 {
+		if n&1 == 1 {
+			result = result + "1"
+		} else {
+			result = result + "0"
+		}
+		n = n >> 1
+	}
+	for len(result) < l {
+		result = result + "0"
+	}
+	return result
 }
 
 // Functions used in the formal description of the cipher
