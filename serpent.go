@@ -17,14 +17,6 @@ type SBox []int
 type Ttable []int
 type bitstring string
 
-// Functions used in the formal description of the cipher
-
-// Function S applies S-Box number 'box' to 4-bit bitstring 'input'
-// and return a 4-bit bitstring.
-func S(box SBox, input byte) byte {
-	return SBoxBitstring[box%8][input]
-}
-
 // Data tables
 
 // Each element of this list corresponds to one S-Box. Each S-Box in turn is
@@ -42,6 +34,8 @@ var SBoxDecimalTable []SBox = []int{
 	[]int{7, 2, 12, 5, 8, 4, 6, 11, 14, 9, 1, 15, 13, 3, 10, 0}, // S6
 	[]int{1, 13, 15, 0, 14, 8, 2, 11, 7, 4, 12, 10, 9, 3, 5, 6}, // S7
 }
+var SBoxBitstring []string
+var SBoxBitstringInverse []string
 
 // The Initial and Final permutations are each represented by one list
 // containing the integers in 0..127 without repetitions.  Having value v
@@ -335,6 +329,30 @@ var LTTableInverse Ttable = []int{
 	[]int{1, 16, 86, 97, 125},
 	[]int{11, 98},
 	[]int{4, 27, 86, 97, 113, 115, 127},
+}
+
+// Initialise variables when this package is imported.
+func init() {
+	for index, line := range SBoxDecimalTable {
+		var dict []string = []string{}
+		var inverseDict []string = []string{}
+		for boxindex, SBox := range line {
+			index = bitstring(boxindex, 4)
+			value = bitstring(line[boxindex], 4)
+			dict[index] = value
+			inverseDict[value] = index
+		}
+		SBoxBitstring = append(SBoxBitstring, dict)
+		SBoxBitstringInverse = append(SBoxBitstringInverse, inverseDict)
+	}
+}
+
+// Functions used in the formal description of the cipher
+
+// Function S applies S-Box number 'box' to 4-bit bitstring 'input'
+// and return a 4-bit bitstring.
+func S(box SBox, input byte) byte {
+	return SBoxBitstring[box%8][input]
 }
 
 func main() {
