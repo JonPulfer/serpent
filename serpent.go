@@ -332,7 +332,7 @@ var LTTableInverse Ttable = []int{
 }
 
 // Constants
-var phi string = "0x9e3779b9L"
+var phi int = 0x9e3779b9
 var r int = 32
 
 // Initialise variables when this package is imported.
@@ -472,6 +472,53 @@ func (input Bitstring) RotateRight(places int) Bitstring {
 			op = places + i - lw
 		}
 		nc[i] = wc[op]
+	}
+	return Bitstring(nc)
+}
+
+// Take a bitstring 's' of arbitrary length. Shift it left by 'p'
+// places. Left means that the 'p' most significant bits are shifted out
+// and dropped, while 'p' 0s are inserted in the the least significant
+// bits. Note that, because the bitstring representation is little-endian,
+// the visual effect is actually that of shifting the string to the
+// right. Negative values for 'p' are allowed, with the effect of shifting
+// right instead (i.e. the 0s are inserted in the most significant bits).
+//
+// EXAMPLE: Bitstring.ShiftLeft("000111", 2) -> "000001"
+// 	Bitstring.ShiftLeft("000111", -2) -> "011100"
+func (s Bitstring) ShiftLeft(places int) Bitstring {
+	wc := s.ByteSlice()
+	lw := len(wc)
+	var nc []byte = make([]byte, lw)
+	if places < 0 {
+		return s.ShiftRight(places - places*2)
+	}
+	for i := 0; i < lw; i++ {
+		if i < places {
+			nc[i] = '0'
+		} else if i == places {
+			nc[places] = wc[i-places]
+		} else {
+			nc[i] = wc[i-places]
+		}
+	}
+	return Bitstring(nc)
+}
+
+// Take a bitstring 's' of arbitrary length and shift it right. Same
+// as Bitstring.ShiftLeft using negative int.
+func (s Bitstring) ShiftRight(places int) Bitstring {
+	wc := s.ByteSlice()
+	lw := len(wc)
+	var nc []byte = make([]byte, lw)
+	for i := 0; i < lw; i++ {
+		if i <= places {
+			nc[i] = wc[places+i]
+		} else if i+places < lw {
+			nc[i] = wc[i+places]
+		} else {
+			nc[i] = '0'
+		}
 	}
 	return Bitstring(nc)
 }
