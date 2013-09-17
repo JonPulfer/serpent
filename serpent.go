@@ -454,6 +454,28 @@ func (input Bitstring) RotateLeft(places int) Bitstring {
 	return Bitstring(nc)
 }
 
+// Take a bitstring 'input' of arbitrary length and rotate it right
+// by 'places' places.
+//
+// EXAMPLE: Bitstring.RotateRight("000111", 2) -> "011100"
+func (input Bitstring) RotateRight(places int) Bitstring {
+	wc := input.ByteSlice()
+	lw := len(wc)
+	var nc []byte = make([]byte, lw)
+	var op int
+	for i := 0; i < lw; i++ {
+		if i+places < lw {
+			op = i + places
+		} else if i+places == lw {
+			op = 0
+		} else if i+places > lw {
+			op = places + i - lw
+		}
+		nc[i] = wc[op]
+	}
+	return Bitstring(nc)
+}
+
 // Functions used in the formal description of the cipher
 
 // Function S applies S-Box number 'box' to 4-bit bitstring 'input'
