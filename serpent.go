@@ -384,6 +384,18 @@ func (b Bitstring) FromInt(n int, l int) (result Bitstring) {
 	return
 }
 
+// ByteSlice returns a []byte representation of the bitstring
+func (s Bitstring) ByteSlice() (result []byte) {
+	for _, char := range s {
+		if string(char) == "0" {
+			result = append(result, '0')
+		} else {
+			result = append(result, '1')
+		}
+	}
+	return
+}
+
 // Return the xor of two bitstrings of equal length as another
 // bitstring of the same length.
 //
@@ -415,6 +427,31 @@ func (b Bitstring) Xor(args []Bitstring) (result Bitstring) {
 		result = result.BinaryXor(arg)
 	}
 	return
+}
+
+// Take a bitstring 'input' of arbitrary length. Rotate it left by
+// 'places' places. Left means that the 'places' most significant bits are
+// taken out and reinserted as the least significant bits. Note that,
+// because the bitstring representation is little-endian, the visual
+// effect is actually that of rotating the string to the right.
+//
+// EXAMPLE: Bitstring.RotateLeft("000111", 2) -> "110001"
+func (input Bitstring) RotateLeft(places int) Bitstring {
+	wc := input.ByteSlice()
+	lw := len(wc)
+	var nc []byte = make([]byte, lw)
+	var op int
+	for i := 0; i < lw; i++ {
+		if i < places {
+			op = lw - places + i
+		} else if i == places {
+			op = 0
+		} else if i > places {
+			op = i - places
+		}
+		nc[i] = wc[op]
+	}
+	return Bitstring(nc)
 }
 
 // Functions used in the formal description of the cipher
