@@ -424,6 +424,29 @@ func (s Bitstring) FromHex(h Hexstring) Bitstring {
 	}
 	return hex2bin[h]
 }
+
+// ToHexstring returns the hexstring representation of the
+// bitstring
+func (s Bitstring) ToHexstring() (result Hexstring) {
+	ln := len(s)
+	var b []Bitstring
+	var tb []byte = make([]byte, 4)
+
+	for i := 0; i < ln; i = i + 4 {
+		tb[0] = s[i]
+		tb[1] = s[i+1]
+		tb[2] = s[i+2]
+		tb[3] = s[i+3]
+		b = append(b, Bitstring(tb))
+	}
+	for _, nbs := range b {
+		result = nbs.ToHex() + result
+	}
+	return
+}
+
+// ToBistring returns the bitstring representation of the
+// hexstring
 func (h Hexstring) ToBitstring() (result Bitstring) {
 	ln := len(h)
 	var rh []byte = make([]byte, ln)
