@@ -7,7 +7,7 @@ python implementation
 
 Serpent cipher invented by Ross Anderson, Eli Biham, Lars Knudsen.
 */
-package main
+package serpent
 
 import (
 	"fmt"
@@ -529,7 +529,4 @@ func (s Bitstring) ShiftRight(places int) Bitstring {
 // and return a 4-bit bitstring.
 func S(box SBox, input byte) byte {
 	return SBoxBitstring[box%8][input]
-}
-
-func main() {
 }
