@@ -410,6 +410,20 @@ func (s Bitstring) ToHex() (h string) {
 	return bin2hex[s]
 }
 
+// FromHex returns a 4-char bitstring of a 1-char hexstring
+func (s Bitstring) FromHex(h string) Bitstring {
+	if len(h) > 1 {
+		fmt.Printf("Hex string is more than 1 char, cannot be converted to bitstring\n")
+	}
+	var hex2bin = map[string]Bitstring{
+		"0": "0000", "1": "1000", "2": "0100", "3": "1100",
+		"4": "0010", "5": "1010", "6": "0110", "7": "1110",
+		"8": "0001", "9": "1001", "a": "0101", "b": "1101",
+		"c": "0011", "d": "1011", "e": "0111", "f": "1111",
+	}
+	return hex2bin[h]
+}
+
 // Return the xor of two bitstrings of equal length as another
 // bitstring of the same length.
 //
