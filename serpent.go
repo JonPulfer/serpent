@@ -16,6 +16,7 @@ import (
 type SBox []int
 type Ttable []int
 type Bitstring string
+type Hexstring string
 
 // Data tables
 
@@ -397,11 +398,11 @@ func (s Bitstring) ByteSlice() (result []byte) {
 }
 
 // ToHex returns a 1-char hexstring of a 4 char bitstring
-func (s Bitstring) ToHex() (h string) {
+func (s Bitstring) ToHex() (h Hexstring) {
 	if len(s) > 4 {
 		fmt.Printf("Bitstring is more than 4 chars, cannot be converted to hex char\n")
 	}
-	var bin2hex = map[Bitstring]string{
+	var bin2hex = map[Bitstring]Hexstring{
 		"0000": "0", "1000": "1", "0100": "2", "1100": "3",
 		"0010": "4", "1010": "5", "0110": "6", "1110": "7",
 		"0001": "8", "1001": "9", "0101": "a", "1101": "b",
@@ -411,17 +412,30 @@ func (s Bitstring) ToHex() (h string) {
 }
 
 // FromHex returns a 4-char bitstring of a 1-char hexstring
-func (s Bitstring) FromHex(h string) Bitstring {
+func (s Bitstring) FromHex(h Hexstring) Bitstring {
 	if len(h) > 1 {
 		fmt.Printf("Hex string is more than 1 char, cannot be converted to bitstring\n")
 	}
-	var hex2bin = map[string]Bitstring{
+	var hex2bin = map[Hexstring]Bitstring{
 		"0": "0000", "1": "1000", "2": "0100", "3": "1100",
 		"4": "0010", "5": "1010", "6": "0110", "7": "1110",
 		"8": "0001", "9": "1001", "a": "0101", "b": "1101",
 		"c": "0011", "d": "1011", "e": "0111", "f": "1111",
 	}
 	return hex2bin[h]
+}
+func (h Hexstring) ToBitstring() (result Bitstring) {
+	ln := len(h)
+	var rh []byte = make([]byte, ln)
+	var n int = 0
+	for i := ln - 1; i >= 0; i-- {
+		rh[i] = h[n]
+		n++
+	}
+	for j := 0; j < ln; j++ {
+		result = result + result.FromHex(Hexstring(rh[j]))
+	}
+	return
 }
 
 // Return the xor of two bitstrings of equal length as another
