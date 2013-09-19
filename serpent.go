@@ -35,8 +35,6 @@ var SBoxDecimalTable []SBox = []int{
 	[]int{7, 2, 12, 5, 8, 4, 6, 11, 14, 9, 1, 15, 13, 3, 10, 0}, // S6
 	[]int{1, 13, 15, 0, 14, 8, 2, 11, 7, 4, 12, 10, 9, 3, 5, 6}, // S7
 }
-var SBoxBitstring []string
-var SBoxBitstringInverse []string
 
 // The Initial and Final permutations are each represented by one list
 // containing the integers in 0..127 without repetitions.  Having value v
@@ -336,14 +334,19 @@ var LTTableInverse Ttable = []int{
 var phi int = 0x9e3779b9
 var r int = 32
 
+var SBoxBitstring []map[Bitstring]Bitstring
+var SBoxBitstringInverse []map[Bitstring]Bitstring
+
 // Initialise variables when this package is imported.
 func init() {
-	for index, line := range SBoxDecimalTable {
-		var dict []string = []string{}
-		var inverseDict []string = []string{}
-		for boxindex, SBox := range line {
-			index = bitstring(boxindex, 4)
-			value = bitstring(line[boxindex], 4)
+	var bs Bitstring
+	for _, sbox := range SBoxDecimalTable {
+		var dict map[Bitstring]Bitstring = make(map[Bitstring]Bitstring, len(sbox))
+		var inverseDict map[Bitstring]Bitstring = make(map[Bitstring]Bitstring, len(sbox))
+
+		for boxindex, box := range sbox {
+			index := bs.FromInt(boxindex, 4)
+			value := bs.FromInt(box, 4)
 			dict[index] = value
 			inverseDict[value] = index
 		}
