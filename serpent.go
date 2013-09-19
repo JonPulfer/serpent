@@ -588,10 +588,33 @@ func (s Bitstring) ShiftRight(places int) Bitstring {
 	return Bitstring(nc)
 }
 
+// QuadSplit breaks a 128-bit bitstring into 4 32-bit bitstrings
+// and returns them, least significant bitstring first
+func (s Bitstring) QuadSplit() []Bitstring {
+	if len(s) != 128 {
+		fmt.Printf("Bitstring must be 128-bits to be quadsplit\n")
+	}
+	result := make([]Bitstring, 4)
+
+	for i := 0; i < 4; i++ {
+		result[i] = s[i*32 : (i+1)*32]
+	}
+	return result
+}
+
+// QuadJoin joins 4 32-bit bitstrings into a single 128-bit
+// bitstring.
+func (s Bitstring) QuadJoin(bs []Bitstring) Bitstring {
+	if len(bs) != 4 {
+		fmt.Printf("List of bitstrings must contain 4 * 32-bit bitstrings\n")
+	}
+	return bs[0] + bs[1] + bs[2] + bs[3]
+}
+
 // Functions used in the formal description of the cipher
 
 // Function S applies S-Box number 'box' to 4-bit bitstring 'input'
 // and return a 4-bit bitstring.
-func S(box SBox, input byte) byte {
+func S(box SBox, input Bitstring) Bitstring {
 	return SBoxBitstring[box%8][input]
 }
