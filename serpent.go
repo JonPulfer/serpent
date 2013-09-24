@@ -341,8 +341,10 @@ var SBoxBitstringInverse []map[Bitstring]Bitstring
 func init() {
 	var bs Bitstring
 	for _, sbox := range SBoxDecimalTable {
-		var dict map[Bitstring]Bitstring = make(map[Bitstring]Bitstring, len(sbox))
-		var inverseDict map[Bitstring]Bitstring = make(map[Bitstring]Bitstring, len(sbox))
+		var dict map[Bitstring]Bitstring = make(
+			map[Bitstring]Bitstring, len(sbox))
+		var inverseDict map[Bitstring]Bitstring = make(
+			map[Bitstring]Bitstring, len(sbox))
 
 		for boxindex, box := range sbox {
 			index := bs.FromInt(boxindex, 4)
@@ -361,8 +363,8 @@ func init() {
 // necessary to reach the minimum length 'minlen'. 'n' must be >= 0 since
 // the bitstring format is undefined for negative integers.
 //
-// Note that, while the bitstring format can represent arbitrarily large numbers,
-// this is not so for Go's normal integer type: on a 32-bit machine,
+// Note that, while the bitstring format can represent arbitrarily large
+// numbers, this is not so for Go's normal integer type: on a 32-bit machine,
 // values of n >= 2^31 need to be expressed as int64 or
 // they will "look" negative and won't work.
 //
@@ -372,7 +374,8 @@ func (b Bitstring) FromInt(n int, l int) (result Bitstring) {
 		fmt.Printf("a bitstring must have a least 1 char\n")
 	}
 	if n < 0 {
-		fmt.Printf("bitstring representation undefined for negative numbers\n")
+		fmt.Printf("bitstring representation undefined for " +
+			"negative numbers\n")
 	}
 	for n > 0 {
 		if n&1 == 1 {
@@ -403,7 +406,8 @@ func (s Bitstring) ByteSlice() (result []byte) {
 // ToHex returns a 1-char hexstring of a 4 char bitstring
 func (s Bitstring) ToHex() (h Hexstring) {
 	if len(s) > 4 {
-		fmt.Printf("Bitstring is more than 4 chars, cannot be converted to hex char\n")
+		fmt.Printf("Bitstring is more than 4 chars, " +
+			"cannot be converted to hex char\n")
 	}
 	var bin2hex = map[Bitstring]Hexstring{
 		"0000": "0", "1000": "1", "0100": "2", "1100": "3",
@@ -417,7 +421,8 @@ func (s Bitstring) ToHex() (h Hexstring) {
 // FromHex returns a 4-char bitstring of a 1-char hexstring
 func (s Bitstring) FromHex(h Hexstring) Bitstring {
 	if len(h) > 1 {
-		fmt.Printf("Hex string is more than 1 char, cannot be converted to bitstring\n")
+		fmt.Printf("Hex string is more than 1 char, " +
+			"cannot be converted to bitstring\n")
 	}
 	var hex2bin = map[Hexstring]Bitstring{
 		"0": "0000", "1": "1000", "2": "0100", "3": "1100",
@@ -470,7 +475,8 @@ func (h Hexstring) ToBitstring() (result Bitstring) {
 // EXAMPLE: Bitstring.BinaryXor("10010", "00011") -> "10001"
 func (s1 Bitstring) BinaryXor(s2 Bitstring) (result Bitstring) {
 	if len(s1) != len(s2) {
-		fmt.Printf("cannot binaryXor bitstrings of different lengths\n")
+		fmt.Printf("cannot binaryXor bitstrings " +
+			"of different lengths\n")
 	}
 	for i, b := range s1 {
 		if string(b) == string(s2[i]) {
@@ -609,7 +615,8 @@ func (s Bitstring) QuadSplit() []Bitstring {
 // bitstring.
 func (s Bitstring) QuadJoin(bs []Bitstring) Bitstring {
 	if len(bs) != 4 {
-		fmt.Printf("List of bitstrings must contain 4 * 32-bit bitstrings\n")
+		fmt.Printf("List of bitstrings must " +
+			"contain 4 * 32-bit bitstrings\n")
 	}
 	return bs[0] + bs[1] + bs[2] + bs[3]
 }
@@ -618,6 +625,12 @@ func (s Bitstring) QuadJoin(bs []Bitstring) Bitstring {
 
 // Function S applies S-Box number 'box' to 4-bit bitstring 'input'
 // and return a 4-bit bitstring.
-func S(box SBox, input Bitstring) Bitstring {
+func S(box int, input Bitstring) Bitstring {
 	return SBoxBitstring[box%8][input]
+}
+
+// Function SInverse applies S-Box number box in reverse to 4-bit bitstring
+// 'output' and return a 4-bit bitstring 'input' as the result
+func SInverse(box int, output Bitstring) Bitstring {
+	return SBoxBitstringInverse[box%8][output]
 }
