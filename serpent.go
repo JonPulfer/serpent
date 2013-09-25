@@ -634,3 +634,25 @@ func S(box int, input Bitstring) Bitstring {
 func SInverse(box int, output Bitstring) Bitstring {
 	return SBoxBitstringInverse[box%8][output]
 }
+
+// Function SHat applies a parallel array of 32 copies of S-Box number 'box'
+// to the 128-bit bitstring 'input' and return a 128-bit bitstring as the
+// result
+func SHat(box int, input Bitstring) Bitstring {
+	var bs Bitstring
+	for i := 0; i < 32; i++ {
+		bs = bs + S(box, input[4*i:4*(i+1)])
+	}
+	return bs
+}
+
+// Function SHatInverse applies in reverse, a parallel array of 32 copies of
+// S-Box number 'box' to the 128-bit bitstring 'output' and return a 128-bit
+// bitstring (the input) as the result
+func SHatInverse(box int, output Bitstring) Bitstring {
+	var bs Bitstring
+	for i := 0; i < 32; i++ {
+		bs = bs + SInverse(box, output[4*i:4*(i+1)])
+	}
+	return bs
+}
