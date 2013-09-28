@@ -656,3 +656,49 @@ func SHatInverse(box int, output Bitstring) Bitstring {
 	}
 	return bs
 }
+
+// Function SBitslice takes 'words', a list of 4 32-bit bitstring, least
+// significant word first and returns a similar list of 4 32-bit bitstrings.
+// Obtained as follows: -
+//
+// For each bit position from 0 to 31, apply S-Box number 'box' to the 4 input
+// bits coming from the current position in each of the items in 'words' and
+// put the 4 output bits in the corresponding positions in the output
+// words.
+func SBitslice(box int, words []Bitstring) []Bitstring {
+	result := make([]Bitstring, 4)
+	for i := 0; i < 32; i++ {
+		var c0 Bitstring = Bitstring(int(words[0][i]))
+		var c1 Bitstring = Bitstring(int(words[1][i]))
+		var c2 Bitstring = Bitstring(int(words[2][i]))
+		var c3 Bitstring = Bitstring(int(words[3][i]))
+		quad := S(box, Bitstring(c0+c1+c2+c3))
+		for j := 0; j < 4; j++ {
+			result[j] = result[j] + Bitstring(int(quad[j]))
+		}
+	}
+	return result
+}
+
+// Function SBitsliceInverse takes 'words', a list of 4 32-bit bitstring, least
+// significant word first and returns a similar list of 4 32-bit bitstrings.
+// Obtained as follows: -
+//
+// For each bit position from 0 to 31, apply S-Box number 'box' in reverse
+// to the 4 input bits coming from the current position in each of the items 
+// in 'words' and put the 4 output bits in the corresponding positions in the 
+// output words.
+func SBitsliceInverse(box int, words []Bitstring) []Bitstring {
+	result := make([]Bitstring, 4)
+	for i := 0; i < 32; i++ {
+		var c0 Bitstring = Bitstring(int(words[0][i]))
+		var c1 Bitstring = Bitstring(int(words[1][i]))
+		var c2 Bitstring = Bitstring(int(words[2][i]))
+		var c3 Bitstring = Bitstring(int(words[3][i]))
+		quad := SInverse(box, Bitstring(c0+c1+c2+c3))
+		for j := 0; j < 4; j++ {
+			result[j] = result[j] + Bitstring(int(quad[j]))
+		}
+	}
+	return result
+}
