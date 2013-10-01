@@ -369,7 +369,7 @@ func init() {
 // they will "look" negative and won't work.
 //
 // EXAMPLE: Bitstring.FromInt(10, 8) -> "01010000"
-func (b Bitstring) FromInt(n int, l int) (result Bitstring) {
+func (s Bitstring) FromInt(n int, l int) (result Bitstring) {
 	if l < 1 {
 		fmt.Printf("a bitstring must have a least 1 char\n")
 	}
@@ -473,12 +473,12 @@ func (h Hexstring) ToBitstring() (result Bitstring) {
 // bitstring of the same length.
 //
 // EXAMPLE: Bitstring.BinaryXor("10010", "00011") -> "10001"
-func (s1 Bitstring) BinaryXor(s2 Bitstring) (result Bitstring) {
-	if len(s1) != len(s2) {
+func (s Bitstring) BinaryXor(s2 Bitstring) (result Bitstring) {
+	if len(s) != len(s2) {
 		fmt.Printf("cannot binaryXor bitstrings " +
 			"of different lengths\n")
 	}
-	for i, b := range s1 {
+	for i, b := range s {
 		if string(b) == string(s2[i]) {
 			result = result + "0"
 		} else {
@@ -492,7 +492,7 @@ func (s1 Bitstring) BinaryXor(s2 Bitstring) (result Bitstring) {
 // length as another bitstring of the same length.
 //
 // EXAMPLE: Bitstring.Xor([]Bitstring{"01", "11", "10"}) -> "00"
-func (b Bitstring) Xor(args []Bitstring) (result Bitstring) {
+func (s Bitstring) Xor(args []Bitstring) (result Bitstring) {
 	if len(args) == 0 {
 		fmt.Printf("at least one argument needed\n")
 	}
