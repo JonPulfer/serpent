@@ -9,9 +9,11 @@ var bs Bitstring
 
 func init() {
 	bs = "11001110010100110010100101010010101110001001100101" +
-		"00101001010111001010010101011001001001010110101001010010101001" +
-		"0101001010100101"
+		"00101001010111001010010101011001001001010110101001010010" +
+		"1010010101001010100101"
 }
+
+// Tests
 
 // Function TestQuadSplit tests splitting a 128-bit Bitstring
 // into a 4 element []Bitstring each of 32-bits.
@@ -39,6 +41,19 @@ func TestQuadJoin(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+// Function TestLinearTranslation takes a 128-bit Bitstring and performs
+// a translation then an inverse translation which should return the 
+// original Bitstring
+func TestLinearTranslation(t *testing.T) {
+	LtBitstring := LT(bs)
+	LtiBitstring := LTInverse(LtBitstring)
+	if LtiBitstring != bs {
+		t.FailNow()
+	}
+}
+
+// Examples
 
 // This example takes a bitstring of "000111" and shifts it left by 2 places
 // showing the visual effect of the little-endian representation.
