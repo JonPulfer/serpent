@@ -68,7 +68,7 @@ var FPTable []int = []int{
 // number of integers in 0..127 specifying the positions of the input bits
 // that must be XORed together (say, 72, 144 and 125) to yield the output
 // bit corresponding to the position of that list (say, 1).
-var LTTable Ttable = []int{
+var LTTable []Ttable = []Ttable{
 	[]int{16, 52, 56, 70, 83, 94, 105},
 	[]int{72, 114, 125},
 	[]int{2, 9, 15, 30, 76, 84, 126},
@@ -199,7 +199,7 @@ var LTTable Ttable = []int{
 	[]int{32, 86, 99},
 }
 
-var LTTableInverse Ttable = []int{
+var LTTableInverse []Ttable = []Ttable{
 	[]int{53, 55, 72},
 	[]int{1, 5, 20, 90},
 	[]int{15, 102},
@@ -685,8 +685,8 @@ func SBitslice(box int, words []Bitstring) []Bitstring {
 // Obtained as follows: -
 //
 // For each bit position from 0 to 31, apply S-Box number 'box' in reverse
-// to the 4 input bits coming from the current position in each of the items 
-// in 'words' and put the 4 output bits in the corresponding positions in the 
+// to the 4 input bits coming from the current position in each of the items
+// in 'words' and put the 4 output bits in the corresponding positions in the
 // output words.
 func SBitsliceInverse(box int, words []Bitstring) []Bitstring {
 	result := make([]Bitstring, 4)
@@ -699,6 +699,45 @@ func SBitsliceInverse(box int, words []Bitstring) []Bitstring {
 		for j := 0; j < 4; j++ {
 			result[j] = result[j] + Bitstring(int(quad[j]))
 		}
+	}
+	return result
+}
+
+// Function LT applies the table based version of the linear transformation
+// to the 128-bit Bitstring 'input' and returns a 128-bit Bitstring.
+func LT(input Bitstring) Bitstring {
+	if len(input) != 128 {
+		fmt.Printf("input is not 128 bits long\n")
+	}
+	var result Bitstring
+	t := len(LTTable)
+	for i := 0; i < t; i++ {
+		var outputBit Bitstring = "0"
+		for _, j := range LTTable[i] {
+			bsj := Bitstring(input[j])
+			outputBit = outputBit.BinaryXor(bsj)
+		}
+		result = result + Bitstring(outputBit)
+	}
+	return result
+}
+
+// Function LTInverse applies the inverse of the table based version of
+// the linear transformation to the 128-bit Bitstring 'output' and returns a
+// 128-bit Bitstring.
+func LTInverse(output Bitstring) Bitstring {
+	if len(output) != 128 {
+		fmt.Printf("output is not 128 bits long\n")
+	}
+	var result Bitstring
+	t := len(LTTableInverse)
+	for i := 0; i < t; i++ {
+		var inputBit Bitstring = "0"
+		for _, j := range LTTableInverse[i] {
+			bsj := Bitstring(output[j])
+			inputBit = inputBit.BinaryXor(bsj)
+		}
+		result = result + Bitstring(inputBit)
 	}
 	return result
 }
