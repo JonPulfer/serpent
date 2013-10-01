@@ -25,7 +25,7 @@ type Hexstring string
 // value v (say, 14) in position p (say, 0) means that if the input to that
 // S-Box is the pattern p (0, or 0x0) then the output will the pattern v
 // (14, or 0xe).
-var SBoxDecimalTable []SBox = []int{
+var SBoxDecimalTable []SBox = []SBox{
 	[]int{3, 8, 15, 1, 10, 6, 5, 11, 14, 13, 4, 2, 7, 0, 9, 12}, // S0
 	[]int{15, 12, 2, 7, 9, 0, 5, 10, 1, 11, 14, 8, 6, 13, 3, 4}, // S1
 	[]int{8, 6, 7, 9, 3, 12, 10, 15, 13, 1, 14, 4, 0, 11, 5, 2}, // S2
