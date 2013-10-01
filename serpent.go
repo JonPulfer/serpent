@@ -557,9 +557,6 @@ func (input Bitstring) RotateRight(places int) Bitstring {
 // the visual effect is actually that of shifting the string to the
 // right. Negative values for 'p' are allowed, with the effect of shifting
 // right instead (i.e. the 0s are inserted in the most significant bits).
-//
-// EXAMPLE: Bitstring.ShiftLeft("000111", 2) -> "000001"
-// 	Bitstring.ShiftLeft("000111", -2) -> "011100"
 func (s Bitstring) ShiftLeft(places int) Bitstring {
 	wc := s.ByteSlice()
 	lw := len(wc)

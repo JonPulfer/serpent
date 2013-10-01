@@ -1,6 +1,7 @@
 package serpent
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -36,4 +37,26 @@ func TestQuadJoin(t *testing.T) {
 	if lts != 128 {
 		t.FailNow()
 	}
+}
+
+// This example takes a bitstring of "000111" and shifts it left by 2 places 
+// showing the visual effect of the little-endian representation.
+func ExampleBitstring_ShiftLeft() {
+	var bs1 Bitstring
+	bs1 = "000111"
+	output := bs1.ShiftLeft(2)
+	fmt.Printf("%v\n", output)
+	// Output:
+	// 000001
+}
+
+// This example takes a bitstring of "000111" and shifts it right by 2 places
+// showing the visual effect of the little-endian representation.
+func ExampleBitstring_ShiftRight() {
+	var bs1 Bitstring
+	bs1 = "000111"
+	output := bs1.ShiftRight(2)
+	fmt.Printf("%v\n", output)
+	// Output:
+	// 011100
 }
