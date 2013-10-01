@@ -61,3 +61,48 @@ func ExampleBitstring_ShiftRight() {
 	// Output:
 	// 011100
 }
+
+// This example takes an integer '10' and converts it to a bitstring of at
+// least 8 bits long.
+func ExampleBitstring_FromInt() {
+	var num int = 10
+	var bs Bitstring
+	output := bs.FromInt(num, 8)
+	fmt.Printf("%v\n", output)
+	// Output:
+	// 01010000
+}
+
+// This example demonstrates a Xor operation of two 5-bit bitstrings.
+func ExampleBitstring_BinaryXor() {
+	var bs1 Bitstring = "10010"
+	var bs2 Bitstring = "00011"
+	fmt.Printf("%v\n", bs1.BinaryXor(bs2))
+	// Output:
+	// 10001
+}
+
+// This example shows a Xor operation on a 3 element []Bitstring.
+func ExampleBitstring_Xor() {
+	var bs []Bitstring = []Bitstring{"01", "11", "10"}
+	var output Bitstring
+	fmt.Printf("%v\n", output.Xor(bs))
+	// Output:
+	// 00
+}
+
+// This example shows a left rotation of 2 places on an 6-bit Bitstring.
+func ExampleBitstring_RotateLeft() {
+	var bs Bitstring = "000111"
+	fmt.Printf("%v\n", bs.RotateLeft(2))
+	// Output:
+	// 110001
+}
+
+// This example shows a right rotation of 2 places on a 6-bit Bitstring.
+func ExampleBitstring_RotateRight() {
+	var bs Bitstring = "000111"
+	fmt.Printf("%v\n", bs.RotateRight(2))
+	// Output:
+	// 011100
+}

@@ -367,8 +367,6 @@ func init() {
 // numbers, this is not so for Go's normal integer type: on a 32-bit machine,
 // values of n >= 2^31 need to be expressed as int64 or
 // they will "look" negative and won't work.
-//
-// EXAMPLE: Bitstring.FromInt(10, 8) -> "01010000"
 func (s Bitstring) FromInt(n int, l int) (result Bitstring) {
 	if l < 1 {
 		fmt.Printf("a bitstring must have a least 1 char\n")
@@ -471,8 +469,6 @@ func (h Hexstring) ToBitstring() (result Bitstring) {
 
 // Return the xor of two bitstrings of equal length as another
 // bitstring of the same length.
-//
-// EXAMPLE: Bitstring.BinaryXor("10010", "00011") -> "10001"
 func (s Bitstring) BinaryXor(s2 Bitstring) (result Bitstring) {
 	if len(s) != len(s2) {
 		fmt.Printf("cannot binaryXor bitstrings " +
@@ -490,8 +486,6 @@ func (s Bitstring) BinaryXor(s2 Bitstring) (result Bitstring) {
 
 // Return the xor of an arbitrary number of bitstrings of the same
 // length as another bitstring of the same length.
-//
-// EXAMPLE: Bitstring.Xor([]Bitstring{"01", "11", "10"}) -> "00"
 func (s Bitstring) Xor(args []Bitstring) (result Bitstring) {
 	if len(args) == 0 {
 		fmt.Printf("at least one argument needed\n")
@@ -508,8 +502,6 @@ func (s Bitstring) Xor(args []Bitstring) (result Bitstring) {
 // taken out and reinserted as the least significant bits. Note that,
 // because the bitstring representation is little-endian, the visual
 // effect is actually that of rotating the string to the right.
-//
-// EXAMPLE: Bitstring.RotateLeft("000111", 2) -> "110001"
 func (input Bitstring) RotateLeft(places int) Bitstring {
 	wc := input.ByteSlice()
 	lw := len(wc)
@@ -530,8 +522,6 @@ func (input Bitstring) RotateLeft(places int) Bitstring {
 
 // Take a bitstring 'input' of arbitrary length and rotate it right
 // by 'places' places.
-//
-// EXAMPLE: Bitstring.RotateRight("000111", 2) -> "011100"
 func (input Bitstring) RotateRight(places int) Bitstring {
 	wc := input.ByteSlice()
 	lw := len(wc)
