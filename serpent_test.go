@@ -24,10 +24,11 @@ func TestQuadSplit(t *testing.T) {
 		for i := 0; i < sl; i++ {
 			sls := len(s[i])
 			if sls != 32 {
-				t.FailNow()
+				t.Fail()
 			}
 		}
 	}
+	fmt.Printf("PASS\t-\t\tTestQuadSplit\n")
 }
 
 // Function TestQuadJoin tests joining a 4 element []Bitstring of 32-bits
@@ -38,19 +39,32 @@ func TestQuadJoin(t *testing.T) {
 	ts = ts.QuadJoin(s)
 	lts := len(ts)
 	if lts != 128 {
-		t.FailNow()
+		t.Fail()
 	}
+	fmt.Printf("PASS\t-\t\tTestQuadJoin\n")
 }
 
 // Function TestLinearTranslation takes a 128-bit Bitstring and performs
-// a translation then an inverse translation which should return the 
+// a translation then an inverse translation which should return the
 // original Bitstring
 func TestLinearTranslation(t *testing.T) {
 	LtBitstring := LT(bs)
 	LtiBitstring := LTInverse(LtBitstring)
 	if LtiBitstring != bs {
-		t.FailNow()
+		t.Fail()
 	}
+	fmt.Printf("PASS\t-\t\tTestLinearTranslation\n")
+}
+
+// Function TestSHat applies the parallel array of 32 copies of S-Box #3 and
+// then applies the inverse to return the Bitstring to it's original form.
+func TestSHat(t *testing.T) {
+	bs1 := SHat(3, bs)
+	orig := SHatInverse(3, bs1)
+	if orig != bs {
+		t.Fail()
+	}
+	fmt.Printf("PASS\t-\t\tTestSHat\n")
 }
 
 // Examples
@@ -58,8 +72,7 @@ func TestLinearTranslation(t *testing.T) {
 // This example takes a bitstring of "000111" and shifts it left by 2 places
 // showing the visual effect of the little-endian representation.
 func ExampleBitstring_ShiftLeft() {
-	var bs1 Bitstring
-	bs1 = "000111"
+	var bs1 Bitstring = "000111"
 	output := bs1.ShiftLeft(2)
 	fmt.Printf("%v\n", output)
 	// Output:
@@ -69,8 +82,7 @@ func ExampleBitstring_ShiftLeft() {
 // This example takes a bitstring of "000111" and shifts it right by 2 places
 // showing the visual effect of the little-endian representation.
 func ExampleBitstring_ShiftRight() {
-	var bs1 Bitstring
-	bs1 = "000111"
+	var bs1 Bitstring = "000111"
 	output := bs1.ShiftRight(2)
 	fmt.Printf("%v\n", output)
 	// Output:
