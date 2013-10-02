@@ -78,7 +78,7 @@ func TestLTBitslice(t *testing.T) {
 			t.Fail()
 		}
 	}
-	fmt.Printf("Pass\t-\t\tTestLTBitslice\n")
+	fmt.Printf("PASS\t-\t\tTestLTBitslice\n")
 }
 
 // Examples
