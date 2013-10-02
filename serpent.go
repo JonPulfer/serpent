@@ -728,3 +728,39 @@ func LTInverse(output Bitstring) Bitstring {
 	}
 	return result
 }
+
+// Function LTBitslice applies the equations-based version of the linear
+// transformation to 'x', a list of 4 32-bit Bitstrings, least significant
+// Bitstring first. Returns a list of 4 32-bit Bitstrings.
+func LTBitslice(x []Bitstring) []Bitstring {
+	x[0] = x[0].RotateLeft(13)
+	x[2] = x[2].RotateLeft(3)
+	x[1] = x[1].Xor([]Bitstring{x[0], x[2]})
+	x[3] = x[3].Xor([]Bitstring{x[2], x[0].ShiftLeft(3)})
+	x[1] = x[1].RotateLeft(1)
+	x[3] = x[3].RotateLeft(7)
+	x[0] = x[0].Xor([]Bitstring{x[1], x[3]})
+	x[2] = x[2].Xor([]Bitstring{x[3], x[1].ShiftLeft(7)})
+	x[0] = x[0].RotateLeft(5)
+	x[2] = x[2].RotateLeft(22)
+
+	return x
+}
+
+// Function LTBitsliceInverse applies, in reverse, the equations-based
+// version of the linear transformation to 'x', a list of 4 32-bit Bitstrings,
+// least significant bit first. Returns a list of 4 32-bit Bitstrings.
+func LTBitsliceInverse(x []Bitstring) []Bitstring {
+	x[2] = x[2].RotateRight(22)
+	x[0] = x[0].RotateRight(5)
+	x[2] = x[2].Xor([]Bitstring{x[3], x[1].ShiftLeft(7)})
+	x[0] = x[0].Xor([]Bitstring{x[1], x[3]})
+	x[3] = x[3].RotateRight(7)
+	x[1] = x[1].RotateRight(1)
+	x[3] = x[3].Xor([]Bitstring{x[2], x[0].ShiftLeft(3)})
+	x[1] = x[1].Xor([]Bitstring{x[0], x[2]})
+	x[2] = x[2].RotateRight(3)
+	x[0] = x[0].RotateRight(13)
+
+	return x
+}

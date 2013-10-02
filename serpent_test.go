@@ -67,6 +67,20 @@ func TestSHat(t *testing.T) {
 	fmt.Printf("PASS\t-\t\tTestSHat\n")
 }
 
+// Function TestLTBitslice applies the equations-based linear transformation
+// and then reverses it.
+func TestLTBitslice(t *testing.T) {
+	bss1 := bs.QuadSplit()
+	bsl1 := LTBitslice(bss1)
+	bss2 := LTBitsliceInverse(bsl1)
+	for i := 0; i < 4; i++ {
+		if bss2[i] != bss1[i] {
+			t.Fail()
+		}
+	}
+	fmt.Printf("Pass\t-\t\tTestLTBitslice\n")
+}
+
 // Examples
 
 // This example takes a bitstring of "000111" and shifts it left by 2 places
