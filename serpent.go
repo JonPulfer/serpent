@@ -764,3 +764,44 @@ func LTBitsliceInverse(x []Bitstring) []Bitstring {
 
 	return x
 }
+
+// Function applyPermutation applies the permutation specified by the
+// 128-element list 'ptable' to the 128-bit Bitstring 'input' and return
+// a 128-bit Bitstring.
+func applyPermutation(ptable []int, input Bitstring) Bitstring {
+	ptlen := len(ptable)
+	iplen := len(input)
+	if iplen != ptlen {
+		fmt.Printf("Input size (%d) doesn't match ptable size "+
+			"(%d)\n", iplen, ptlen)
+	}
+	var result Bitstring
+	for i := 0; i < ptlen; i++ {
+		r := Bitstring(input[ptable[i]])
+		result = result + r
+	}
+
+	return result
+}
+
+// Function IP applies the initial permutation table to the 128-bit
+// Bitstring 'input' and returns the result.
+func IP(input Bitstring) Bitstring {
+	return applyPermutation(IPTable, input)
+}
+
+// Function FP applies the final permutation table to the 128-bit Bitstring
+// 'input' and returns the result.
+func FP(input Bitstring) Bitstring {
+	return applyPermutation(FPTable, input)
+}
+
+// Function FPInverse applies the final permutation in reverse.
+func FPInverse(output Bitstring) Bitstring {
+	return FP(output)
+}
+
+// Function IPInverse applies the initial permutation in reverse.
+func IPInverse(output Bitstring) Bitstring {
+	return IP(output)
+}

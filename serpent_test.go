@@ -81,6 +81,18 @@ func TestLTBitslice(t *testing.T) {
 	fmt.Printf("PASS\t-\t\tTestLTBitslice\n")
 }
 
+// Function TestPTable applies the permutation table sequence.
+func TestPTable(t *testing.T) {
+	bspi := IP(bs)
+	bspf := FP(bspi)
+	bspfr := FPInverse(bspf)
+	bspir := IPInverse(bspfr)
+	if bspir != bs {
+		t.Fail()
+	}
+	fmt.Printf("PASS\t-\t\tTestPTable\n")
+}
+
 // Examples
 
 // This example takes a bitstring of "000111" and shifts it left by 2 places
