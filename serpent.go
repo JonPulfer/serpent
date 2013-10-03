@@ -16,6 +16,7 @@ import (
 type SBox []int
 type Ttable []int
 type Bitstring string
+type Bitslice []Bitstring
 type Hexstring string
 
 // Data tables
@@ -331,8 +332,10 @@ var LTTableInverse []Ttable = []Ttable{
 }
 
 // Constants
-var phi int = 0x9e3779b9
-var r int = 32
+const (
+	phi   int = 0x9e3779b9
+	round int = 32
+)
 
 var SBoxBitstring []map[Bitstring]Bitstring
 var SBoxBitstringInverse []map[Bitstring]Bitstring
@@ -355,6 +358,18 @@ func init() {
 		SBoxBitstring = append(SBoxBitstring, dict)
 		SBoxBitstringInverse = append(SBoxBitstringInverse, inverseDict)
 	}
+}
+
+// Methods for Bitslice
+
+// Method Reverse returns the Bitslice with the elements reversed.
+func (bs Bitslice) Reverse() []Bitstring {
+	bslen := len(bs)
+	new := make([]Bitstring, bslen)
+	for i := 0; i < bslen; i++ {
+		new[i] = Bitstring(bs[bslen-1-i])
+	}
+	return new
 }
 
 // Methods for Bitstring
@@ -435,7 +450,7 @@ func (s Bitstring) FromHex(h Hexstring) Bitstring {
 // bitstring
 func (s Bitstring) ToHexstring() (result Hexstring) {
 	ln := len(s)
-	var b []Bitstring
+	var b Bitslice
 	var tb []byte = make([]byte, 4)
 
 	for i := 0; i < ln; i = i + 4 {
@@ -486,7 +501,7 @@ func (s Bitstring) BinaryXor(s2 Bitstring) (result Bitstring) {
 
 // Return the xor of an arbitrary number of bitstrings of the same
 // length as another bitstring of the same length.
-func (s Bitstring) Xor(args []Bitstring) (result Bitstring) {
+func (s Bitstring) Xor(args Bitslice) (result Bitstring) {
 	if len(args) == 0 {
 		fmt.Printf("at least one argument needed\n")
 	}
@@ -586,11 +601,11 @@ func (s Bitstring) ShiftRight(places int) Bitstring {
 
 // QuadSplit breaks a 128-bit bitstring into 4 32-bit bitstrings
 // and returns them, least significant bitstring first
-func (s Bitstring) QuadSplit() []Bitstring {
+func (s Bitstring) QuadSplit() Bitslice {
 	if len(s) != 128 {
 		fmt.Printf("Bitstring must be 128-bits to be quadsplit\n")
 	}
-	result := make([]Bitstring, 4)
+	result := make(Bitslice, 4)
 
 	for i := 0; i < 4; i++ {
 		result[i] = s[i*32 : (i+1)*32]
@@ -600,7 +615,7 @@ func (s Bitstring) QuadSplit() []Bitstring {
 
 // QuadJoin joins 4 32-bit bitstrings into a single 128-bit
 // bitstring.
-func (s Bitstring) QuadJoin(bs []Bitstring) Bitstring {
+func (s Bitstring) QuadJoin(bs Bitslice) Bitstring {
 	if len(bs) != 4 {
 		fmt.Printf("List of bitstrings must " +
 			"contain 4 * 32-bit bitstrings\n")
@@ -652,8 +667,8 @@ func SHatInverse(box int, output Bitstring) Bitstring {
 // bits coming from the current position in each of the items in 'words' and
 // put the 4 output bits in the corresponding positions in the output
 // words.
-func SBitslice(box int, words []Bitstring) []Bitstring {
-	result := make([]Bitstring, 4)
+func SBitslice(box int, words Bitslice) Bitslice {
+	result := make(Bitslice, 4)
 	for i := 0; i < 32; i++ {
 		var c0 Bitstring = Bitstring(int(words[0][i]))
 		var c1 Bitstring = Bitstring(int(words[1][i]))
@@ -675,8 +690,8 @@ func SBitslice(box int, words []Bitstring) []Bitstring {
 // to the 4 input bits coming from the current position in each of the items
 // in 'words' and put the 4 output bits in the corresponding positions in the
 // output words.
-func SBitsliceInverse(box int, words []Bitstring) []Bitstring {
-	result := make([]Bitstring, 4)
+func SBitsliceInverse(box int, words Bitslice) Bitslice {
+	result := make(Bitslice, 4)
 	for i := 0; i < 32; i++ {
 		var c0 Bitstring = Bitstring(int(words[0][i]))
 		var c1 Bitstring = Bitstring(int(words[1][i]))
@@ -732,15 +747,15 @@ func LTInverse(output Bitstring) Bitstring {
 // Function LTBitslice applies the equations-based version of the linear
 // transformation to 'x', a list of 4 32-bit Bitstrings, least significant
 // Bitstring first. Returns a list of 4 32-bit Bitstrings.
-func LTBitslice(x []Bitstring) []Bitstring {
+func LTBitslice(x Bitslice) Bitslice {
 	x[0] = x[0].RotateLeft(13)
 	x[2] = x[2].RotateLeft(3)
-	x[1] = x[1].Xor([]Bitstring{x[0], x[2]})
-	x[3] = x[3].Xor([]Bitstring{x[2], x[0].ShiftLeft(3)})
+	x[1] = x[1].Xor(Bitslice{x[0], x[2]})
+	x[3] = x[3].Xor(Bitslice{x[2], x[0].ShiftLeft(3)})
 	x[1] = x[1].RotateLeft(1)
 	x[3] = x[3].RotateLeft(7)
-	x[0] = x[0].Xor([]Bitstring{x[1], x[3]})
-	x[2] = x[2].Xor([]Bitstring{x[3], x[1].ShiftLeft(7)})
+	x[0] = x[0].Xor(Bitslice{x[1], x[3]})
+	x[2] = x[2].Xor(Bitslice{x[3], x[1].ShiftLeft(7)})
 	x[0] = x[0].RotateLeft(5)
 	x[2] = x[2].RotateLeft(22)
 
@@ -750,15 +765,15 @@ func LTBitslice(x []Bitstring) []Bitstring {
 // Function LTBitsliceInverse applies, in reverse, the equations-based
 // version of the linear transformation to 'x', a list of 4 32-bit Bitstrings,
 // least significant bit first. Returns a list of 4 32-bit Bitstrings.
-func LTBitsliceInverse(x []Bitstring) []Bitstring {
+func LTBitsliceInverse(x Bitslice) Bitslice {
 	x[2] = x[2].RotateRight(22)
 	x[0] = x[0].RotateRight(5)
-	x[2] = x[2].Xor([]Bitstring{x[3], x[1].ShiftLeft(7)})
-	x[0] = x[0].Xor([]Bitstring{x[1], x[3]})
+	x[2] = x[2].Xor(Bitslice{x[3], x[1].ShiftLeft(7)})
+	x[0] = x[0].Xor(Bitslice{x[1], x[3]})
 	x[3] = x[3].RotateRight(7)
 	x[1] = x[1].RotateRight(1)
-	x[3] = x[3].Xor([]Bitstring{x[2], x[0].ShiftLeft(3)})
-	x[1] = x[1].Xor([]Bitstring{x[0], x[2]})
+	x[3] = x[3].Xor(Bitslice{x[2], x[0].ShiftLeft(3)})
+	x[1] = x[1].Xor(Bitslice{x[0], x[2]})
 	x[2] = x[2].RotateRight(3)
 	x[0] = x[0].RotateRight(13)
 
@@ -804,4 +819,30 @@ func FPInverse(output Bitstring) Bitstring {
 // Function IPInverse applies the initial permutation in reverse.
 func IPInverse(output Bitstring) Bitstring {
 	return IP(output)
+}
+
+// Function makeSubkeys takes the 256-bit Bitstring 'userkey' and returns two
+// lists (conceptually K and KHat) of 33 128-bit Bitstrings each.
+func makeSubkeys(userkey Bitstring) (Bitslice, Bitslice) {
+	// Convert the userkey to 8 32-bit words.
+	w := make(Bitslice, 132)
+	for i := 0; i < 9; i++ {
+		w[i] = userkey[i*32 : (i+1)*32]
+	}
+	w = w.Reverse()
+
+	// Expand the 8 words to a prekey w0 ... w131 with the affine
+	// recurrence.
+	for i := 0; i < 132; i++ {
+		var tempbs Bitstring
+		tempbs = w[i].Xor(
+				Bitslice{w[i+3], w[i+5], w[i+7],
+					tempbs.FromInt(phi, 32),
+					tempbs.FromInt(i, 32)})
+		w[i] = tempbs.RotateLeft(11)
+	}
+
+	k := make(Bitslice, 132)
+
+	return w, k
 }
