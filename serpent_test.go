@@ -93,6 +93,20 @@ func TestPTable(t *testing.T) {
 	fmt.Printf("PASS\t-\t\tTestPTable\n")
 }
 
+// Function TestKeygen checks the formatting of the userkey.
+func TestKeygen(t *testing.T) {
+	var K Bitslice
+	var KHat Bitslice
+	ukey := bs
+	ukeyl := makeLongkey(ukey)
+	ukeyll := len(ukeyl)
+	if ukeyll == 256 {
+		K, KHat = makeSubkeys(ukeyl)
+	}
+	fmt.Printf("K\n%v\nKHat\n%v\n", K, KHat)
+}
+
+
 // Examples
 
 // This example takes a bitstring of "000111" and shifts it left by 2 places

@@ -825,24 +825,85 @@ func IPInverse(output Bitstring) Bitstring {
 // lists (conceptually K and KHat) of 33 128-bit Bitstrings each.
 func makeSubkeys(userkey Bitstring) (Bitslice, Bitslice) {
 	// Convert the userkey to 8 32-bit words.
-	w := make(Bitslice, 132)
-	for i := 0; i < 9; i++ {
+	w := make(Bitslice, 8)
+	for i := 0; i < 8; i++ {
 		w[i] = userkey[i*32 : (i+1)*32]
 	}
-	w = w.Reverse()
 
 	// Expand the 8 words to a prekey w0 ... w131 with the affine
 	// recurrence.
-	for i := 0; i < 132; i++ {
-		var tempbs Bitstring
-		tempbs = w[i].Xor(
-				Bitslice{w[i+3], w[i+5], w[i+7],
-					tempbs.FromInt(phi, 32),
-					tempbs.FromInt(i, 32)})
-		w[i] = tempbs.RotateLeft(11)
+	nw := make(Bitslice, 132)
+	copy(nw, w)
+	var tempbs Bitstring
+	for i := 8; i < 132; i++ {
+		nw[i] = tempbs.FromInt(0, 32)
+	}
+	w = nw
+	w = w.Reverse()
+	for i := 132; i > 7; i-- {
+		tempbsl := Bitslice{w[i-5], w[i-3], w[i-1],
+			tempbs.FromInt(phi, 32),
+			tempbs.FromInt(i, 32)}
+		tempbs = w[i-8].Xor(tempbsl)
+		w[i-8] = tempbs.RotateLeft(11)
 	}
 
+	// The round keys are now calculated from the prekeys using the
+	// S-Boxes in bitslice mode. Each k[i] is a 32-bit Bitstring.
 	k := make(Bitslice, 132)
+	for i := 0; i < round+1; i++ {
+		whichS := (round + 3 - i) % round
+		k[0+4*i] = Bitstring("")
+		k[1+4*i] = Bitstring("")
+		k[2+4*i] = Bitstring("")
+		k[3+4*i] = Bitstring("")
+		var input Bitstring
+		for j := 0; j < 32; j++ {
+			input = Bitstring(w[0+4*i][j]) +
+				Bitstring(w[1+4*i][j]) +
+				Bitstring(w[2+4*i][j]) +
+				Bitstring(w[3+4*i][j])
+			output := S(whichS, input)
+			for l := 0; l < 4; l++ {
+				k[l+4*i] = k[l+4*i] + Bitstring(output[l])
+			}
+		}
+	}
+
+	// We then renumber the 32-bit values k_j as 128-bit subkeys K_i
+	K := Bitslice{}
+	for i := 0; i < 32; i++ {
+		K = append(K, k[4*i]+k[4*i+1]+k[4*i+2]+k[4*i+3])
+	}
+
+	// We now apply IP to the round key in order to place the key bits
+	// in the correct column.
+	KHat := Bitslice{}
+	for i := 0; i < 32; i++ {
+		KHat = append(KHat, IP(K[i]))
+	}
 
 	return w, k
+}
+
+// Function makeLongkey takes a bitstring key 'k' and returns the long
+// (256-bit) version of that key.
+func makeLongkey(k Bitstring) Bitstring {
+	lk := len(k)
+	if lk%32 != 0 || lk < 64 || lk > 256 {
+		fmt.Printf("Invalid key length(%d bits)", lk)
+	}
+	if lk == 256 {
+		return k
+	}
+
+	for i := 0; i < 256-lk; i++ {
+		if i%2 == 1 {
+			k = k + "0"
+		} else {
+			k = k + "1"
+		}
+	}
+
+	return k
 }
