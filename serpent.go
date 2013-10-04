@@ -853,10 +853,6 @@ func makeSubkeys(userkey Bitstring) (Bitslice, Bitslice) {
 	k := make(Bitslice, 132)
 	for i := 0; i < round+1; i++ {
 		whichS := (round + 3 - i) % round
-		k[0+4*i] = Bitstring("")
-		k[1+4*i] = Bitstring("")
-		k[2+4*i] = Bitstring("")
-		k[3+4*i] = Bitstring("")
 		var input Bitstring
 		for j := 0; j < 32; j++ {
 			input = Bitstring(w[0+4*i][j]) +
@@ -872,18 +868,18 @@ func makeSubkeys(userkey Bitstring) (Bitslice, Bitslice) {
 
 	// We then renumber the 32-bit values k_j as 128-bit subkeys K_i
 	K := Bitslice{}
-	for i := 0; i < 32; i++ {
+	for i := 0; i < 33; i++ {
 		K = append(K, k[4*i]+k[4*i+1]+k[4*i+2]+k[4*i+3])
 	}
 
 	// We now apply IP to the round key in order to place the key bits
 	// in the correct column.
 	KHat := Bitslice{}
-	for i := 0; i < 32; i++ {
+	for i := 0; i < 33; i++ {
 		KHat = append(KHat, IP(K[i]))
 	}
 
-	return w, k
+	return K, KHat
 }
 
 // Function makeLongkey takes a bitstring key 'k' and returns the long

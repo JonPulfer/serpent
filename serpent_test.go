@@ -103,7 +103,10 @@ func TestKeygen(t *testing.T) {
 	if ukeyll == 256 {
 		K, KHat = makeSubkeys(ukeyl)
 	}
-	fmt.Printf("K\n%v\nKHat\n%v\n", K, KHat)
+	if len(K) != 33 && len(KHat) != 33 {
+		t.Fail()
+	}
+	fmt.Printf("PASS\t-\t\tTestKeygen\n")
 }
 
 
