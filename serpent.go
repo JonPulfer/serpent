@@ -894,10 +894,10 @@ func makeLongkey(k Bitstring) Bitstring {
 	}
 
 	for i := 0; i < 256-lk; i++ {
-		if i%2 == 1 {
-			k = k + "0"
-		} else {
+		if i == 0 {
 			k = k + "1"
+		} else {
+			k = k + "0"
 		}
 	}
 
