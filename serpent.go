@@ -832,7 +832,7 @@ func R(i int, BHati Bitstring, KHat Bitslice) Bitstring {
 	xored = xored.Xor(Bitslice{BHati, KHat[i]})
 	SHati := SHat(i, xored)
 
-	if 0 <= i && 0 <= round - 2 {
+	if 0 <= i && i <= round - 2 {
 		BHatiPlus1 = LT(SHati)
 	} else if i == round - 1 {
 		BHatiPlus1 = BHatiPlus1.Xor(Bitslice{SHati, KHat[round]})
@@ -841,6 +841,29 @@ func R(i int, BHati Bitstring, KHat Bitslice) Bitstring {
 	}
 
 	return BHatiPlus1
+}
+
+// Function RInverse applies the round 'i' in reverse to the 128-bit Bitstring
+// 'BHatiPlus1', returning another 128-bit Bitstring (conceptually BHati). Do
+// this using the appropriately numbered subkey(s) from the 'KHat' list of 33
+// 128-bit Bitstrings.
+func RInverse(i int, BHatiPlus1 Bitstring, KHat Bitslice) Bitstring {
+	var xored Bitstring
+	var BHati Bitstring
+	var SHati Bitstring
+	
+	if 0 <= i && i <= round - 2 {
+		SHati = LTInverse(BHatiPlus1)
+	} else if i == round - 1 {
+		SHati = xored.Xor(Bitslice{BHatiPlus1, KHat[round]})
+	} else {
+		fmt.Printf("Round is out of range\n")
+	}
+
+	xored = SHatInverse(i, SHati)
+	BHati = xored.Xor(Bitslice{xored, KHat[i]})
+
+	return BHati
 }
 
 // Function makeSubkeys takes the 256-bit Bitstring 'userkey' and returns two

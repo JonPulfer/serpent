@@ -161,6 +161,17 @@ func TestR(t *testing.T) {
 	}
 }
 
+// Function TestRInverse checks the RInverse funtions returns bs
+func TestRInverse(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestRInverse\n")
+	_, KHat := makeSubkeys(makeLongkey(bs))
+	BHati := RInverse(2, R(2, bs, KHat), KHat)
+	if BHati != bs {
+		t.Errorf("Output from RInverse does not match bs\n")
+		t.Fail()
+	}
+}
+
 // Examples
 
 // This example takes a bitstring of "000111" and shifts it left by 2 places
