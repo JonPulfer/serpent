@@ -17,6 +17,7 @@ type SBox []int
 type Ttable []int
 type Bitstring string
 type Bitslice []Bitstring
+type Bitmap map[int]Bitstring
 type Hexstring string
 
 // Data tables
@@ -825,27 +826,20 @@ func IPInverse(output Bitstring) Bitstring {
 // lists (conceptually K and KHat) of 33 128-bit Bitstrings each.
 func makeSubkeys(userkey Bitstring) (Bitslice, Bitslice) {
 	// Convert the userkey to 8 32-bit words.
-	w := make(Bitslice, 8)
-	for i := 0; i < 8; i++ {
-		w[i] = userkey[i*32 : (i+1)*32]
+	w := make(Bitmap, 132)
+	for i := -8; i < 0; i++ {
+		w[i] = userkey[(i+8)*32 : (i+9)*32]
 	}
 
 	// Expand the 8 words to a prekey w0 ... w131 with the affine
 	// recurrence.
-	nw := make(Bitslice, 132)
-	copy(nw, w)
 	var tempbs Bitstring
-	for i := 8; i < 132; i++ {
-		nw[i] = tempbs.FromInt(0, 32)
-	}
-	w = nw
-	w = w.Reverse()
-	for i := 132; i > 7; i-- {
-		tempbsl := Bitslice{w[i-5], w[i-3], w[i-1],
+	for i := 0; i < 132; i++ {
+		tempbsl := Bitslice{w[i-8], w[i-5], w[i-3], w[i-1],
 			tempbs.FromInt(phi, 32),
 			tempbs.FromInt(i, 32)}
-		tempbs = w[i-8].Xor(tempbsl)
-		w[i-8] = tempbs.RotateLeft(11)
+		tempbs = tempbs.Xor(tempbsl)
+		w[i] = tempbs.RotateLeft(11)
 	}
 
 	// The round keys are now calculated from the prekeys using the
@@ -853,6 +847,10 @@ func makeSubkeys(userkey Bitstring) (Bitslice, Bitslice) {
 	k := make(Bitslice, 132)
 	for i := 0; i < round+1; i++ {
 		whichS := (round + 3 - i) % round
+		k[0+4*i] = ""
+		k[1+4*i] = ""
+		k[2+4*i] = ""
+		k[3+4*i] = ""
 		var input Bitstring
 		for j := 0; j < 32; j++ {
 			input = Bitstring(w[0+4*i][j]) +

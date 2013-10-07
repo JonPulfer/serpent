@@ -18,6 +18,7 @@ func init() {
 // Function TestQuadSplit tests splitting a 128-bit Bitstring
 // into a 4 element []Bitstring each of 32-bits.
 func TestQuadSplit(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestQuadSplit\n")
 	s := bs.QuadSplit()
 	sl := len(s)
 	if sl == 4 {
@@ -28,12 +29,12 @@ func TestQuadSplit(t *testing.T) {
 			}
 		}
 	}
-	fmt.Printf("PASS\t-\t\tTestQuadSplit\n")
 }
 
 // Function TestQuadJoin tests joining a 4 element []Bitstring of 32-bits
 // each into a single 128-bit Bitstring.
 func TestQuadJoin(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestQuadJoin\n")
 	var ts Bitstring
 	s := bs.QuadSplit()
 	ts = ts.QuadJoin(s)
@@ -41,35 +42,35 @@ func TestQuadJoin(t *testing.T) {
 	if lts != 128 {
 		t.Fail()
 	}
-	fmt.Printf("PASS\t-\t\tTestQuadJoin\n")
 }
 
 // Function TestLinearTranslation takes a 128-bit Bitstring and performs
 // a translation then an inverse translation which should return the
 // original Bitstring
 func TestLinearTranslation(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestLinearTranslation\n")
 	LtBitstring := LT(bs)
 	LtiBitstring := LTInverse(LtBitstring)
 	if LtiBitstring != bs {
 		t.Fail()
 	}
-	fmt.Printf("PASS\t-\t\tTestLinearTranslation\n")
 }
 
 // Function TestSHat applies the parallel array of 32 copies of S-Box #3 and
 // then applies the inverse to return the Bitstring to it's original form.
 func TestSHat(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestSHat\n")
 	bs1 := SHat(3, bs)
 	orig := SHatInverse(3, bs1)
 	if orig != bs {
 		t.Fail()
 	}
-	fmt.Printf("PASS\t-\t\tTestSHat\n")
 }
 
 // Function TestLTBitslice applies the equations-based linear transformation
 // and then reverses it.
 func TestLTBitslice(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestLTBitslice\n")
 	bss1 := bs.QuadSplit()
 	bsl1 := LTBitslice(bss1)
 	bss2 := LTBitsliceInverse(bsl1)
@@ -78,11 +79,11 @@ func TestLTBitslice(t *testing.T) {
 			t.Fail()
 		}
 	}
-	fmt.Printf("PASS\t-\t\tTestLTBitslice\n")
 }
 
 // Function TestPTable applies the permutation table sequence.
 func TestPTable(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestPTable\n")
 	bspi := IP(bs)
 	bspf := FP(bspi)
 	bspfr := FPInverse(bspf)
@@ -90,23 +91,59 @@ func TestPTable(t *testing.T) {
 	if bspir != bs {
 		t.Fail()
 	}
-	fmt.Printf("PASS\t-\t\tTestPTable\n")
+}
+
+// Function TestS checks S function
+func TestS(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestS\n")
+	var target Bitstring = "0111"
+	result := S(2, "0101")
+	if result != target {
+		t.Errorf("Output from S does not match target\n")
+		t.Fail()
+	}
 }
 
 // Function TestKeygen checks the formatting of the userkey.
 func TestKeygen(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestKeygen\n")
+	// Expected output from makeLongkey from 128-bit Bitstring 'bs'
+	var longkey Bitstring = "110011100101001100101001010100101011100010" +
+		"0110010100101001010111001010010101011001001001010110101001" +
+		"0100101010010101001010100101100000000000000000000000000000" +
+		"0000000000000000000000000000000000000000000000000000000000" +
+		"0000000000000000000000000000000000000000"
+	// Expected output in K[3]
+	var k3 Bitstring = "010001101101011101010100110100011111110001011001" +
+		"00000011100010100011001010110000000101111110001000000011001" +
+		"011011001011010111011"
+	// Expected KHat[3] from makeSubkeys using above longkey
+	var khat3 Bitstring = "010011000110011001001100101100011010110000111" +
+		"1100101100110001101000110000000101100001011011101101111101" +
+		"0001110010101000001111001"
 	var K Bitslice
 	var KHat Bitslice
 	ukey := bs
 	ukeyl := makeLongkey(ukey)
 	ukeyll := len(ukeyl)
 	if ukeyll == 256 {
+		if ukeyl != longkey {
+			t.Errorf("Long key does not match expected\n")
+			t.Fail()
+		}
 		K, KHat = makeSubkeys(ukeyl)
 	}
 	if len(K) != 33 && len(KHat) != 33 {
 		t.Fail()
 	}
-	fmt.Printf("PASS\t-\t\tTestKeygen\n")
+	if K[3] != k3 {
+		t.Errorf("K[3] does not match expected output\n")
+		t.Fail()
+	}
+	if KHat[3] != khat3 {
+		t.Errorf("KHat[3] does not match expected output\n")
+		t.Fail()
+	}
 }
 
 
