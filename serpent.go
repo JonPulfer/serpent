@@ -822,6 +822,27 @@ func IPInverse(output Bitstring) Bitstring {
 	return IP(output)
 }
 
+// Function R applies round 'i' to the 128-bit Bitstring 'BHati', returning
+// another 128-bit Bitstring (conceptually BHatiPlus1). Do this using the
+// appropriately numbered subkey(s) from the 'KHat' list of 33 128-bit
+// Bitstrings.
+func R(i int, BHati Bitstring, KHat Bitslice) Bitstring {
+	var xored Bitstring
+	var BHatiPlus1 Bitstring
+	xored = xored.Xor(Bitslice{BHati, KHat[i]})
+	SHati := SHat(i, xored)
+
+	if 0 <= i && 0 <= round - 2 {
+		BHatiPlus1 = LT(SHati)
+	} else if i == round - 1 {
+		BHatiPlus1 = BHatiPlus1.Xor(Bitslice{SHati, KHat[round]})
+	} else {
+		fmt.Printf("Round is out of range\n")
+	}
+
+	return BHatiPlus1
+}
+
 // Function makeSubkeys takes the 256-bit Bitstring 'userkey' and returns two
 // lists (conceptually K and KHat) of 33 128-bit Bitstrings each.
 func makeSubkeys(userkey Bitstring) (Bitslice, Bitslice) {

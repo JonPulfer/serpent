@@ -146,6 +146,20 @@ func TestKeygen(t *testing.T) {
 	}
 }
 
+// Function TestR checks the R function returns the correct value
+func TestR(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestR\n")
+	var target Bitstring
+	target = "00111011110100111000111011100000111101011001100000000001" +
+		"0010100100111100010100110011010010001110011000000000011000" +
+		"00110101110010"
+	_, KHat := makeSubkeys(makeLongkey(bs))
+	output := R(2, bs, KHat)
+	if output != target {
+		t.Errorf("Output doesn't match target\n")
+		t.Fail()
+	}
+}
 
 // Examples
 
