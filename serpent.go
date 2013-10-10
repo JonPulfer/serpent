@@ -815,12 +815,12 @@ func FP(input Bitstring) Bitstring {
 
 // Function FPInverse applies the final permutation in reverse.
 func FPInverse(output Bitstring) Bitstring {
-	return FP(output)
+	return IP(output)
 }
 
 // Function IPInverse applies the initial permutation in reverse.
 func IPInverse(output Bitstring) Bitstring {
-	return IP(output)
+	return FP(output)
 }
 
 // Function R applies round 'i' to the 128-bit Bitstring 'BHati', returning
@@ -998,4 +998,58 @@ func makeLongkey(k Bitstring) Bitstring {
 	}
 
 	return k
+}
+
+// Function Encrypt uses the 256-bit Bitstring 'userKey' to encrypt the 
+// 128-bit Bitstring 'plainText' by the normal algorithm. Returns a 128-bit 
+// cipher text Bitstring.
+func Encrypt(plainText Bitstring, userKey Bitstring) Bitstring {
+	_, KHat := makeSubkeys(userKey)
+	BHat := IP(plainText)
+	for i := 0; i < round; i++ {
+		BHat = R(i, BHat, KHat)
+	}
+	C := FP(BHat)
+
+	return C
+}
+
+// Function EncryptBitslice encrypts the 128-bit Bitstring 'plainText' with
+// the 256-bit Bitstring 'userKey' using the bitslice algorithm. Returns a
+// 128-bit cipher text Bitstring.
+func EncryptBitslice(plainText Bitstring, userKey Bitstring) Bitstring {
+	K, _ := makeSubkeys(userKey)
+	B := plainText
+	for i := 0; i < round; i++ {
+		B = RBitslice(i, B, K)
+	}
+
+	return B
+}
+
+// Function Decrypt uses the 256-bit Bitstring 'userKey' to decrypt the
+// 128-bit Bitstring 'cipherText' using the normal algorithm. Returns a
+// 128-bit Bitstring which is the plain text.
+func Decrypt(cipherText Bitstring, userKey Bitstring) Bitstring {
+	_, KHat := makeSubkeys(userKey)
+	BHat := FPInverse(cipherText)
+	for i := round -1; i >= 0; i-- {
+		BHat = RInverse(i, BHat, KHat)
+	}
+	plainText := IPInverse(BHat)
+
+	return plainText
+}
+
+// Function DecryptBitslice decrypts the 128-bit Bitstring 'cipherText' with
+// the 256-bit Bitstring 'userKey' using the bitslice algorithm. Returns a
+// 128-bit Bitstring which is the plain text.
+func DecryptBitslice(cipherText Bitstring, userKey Bitstring) Bitstring {
+	K, _ := makeSubkeys(userKey)
+	B := cipherText
+	for i := round -1; i >= 0; i-- {
+		B = RBitsliceInverse(i, B, K)
+	}
+
+	return B
 }

@@ -88,7 +88,14 @@ func TestXor(t *testing.T) {
 // original Bitstring
 func TestLinearTranslation(t *testing.T) {
 	fmt.Printf("Running\t-\t\tTestLinearTranslation\n")
+	var ltTarget Bitstring = "010100001000001110000000010110111011111110" +
+		"11011100000110011010001110010100110100001011100101011011000" +
+		"110011110000000011011101110"
 	LtBitstring := LT(bs)
+	if LtBitstring != ltTarget {
+		t.Errorf("LT does not match target\n")
+		t.Fail()
+	}
 	LtiBitstring := LTInverse(LtBitstring)
 	if LtiBitstring != bs {
 		t.Fail()
@@ -139,6 +146,19 @@ func TestPTable(t *testing.T) {
 	bspfr := FPInverse(bspf)
 	bspir := IPInverse(bspfr)
 	if bspir != bs {
+		t.Fail()
+	}
+	var target Bitstring = "11000100111101000100010110110010111000100000" +
+		"10110011101001001001010110011000010110010001001001100011011" +
+		"0101100110110011010011001"
+	testFP := FP(bs)
+	if testFP != target {
+		t.Errorf("FP does not match target\n")
+		t.Fail()
+	}
+	testFPInverse := FPInverse(target)
+	if testFPInverse != bs {
+		t.Errorf("FPInverse does not yield bs\n")
 		t.Fail()
 	}
 }
@@ -244,12 +264,14 @@ func TestKeygen(t *testing.T) {
 // Function TestR checks the R function returns the correct value
 func TestR(t *testing.T) {
 	fmt.Printf("Running\t-\t\tTestR\n")
-	var target Bitstring
-	target = "00111011110100111000111011100000111101011001100000000001" +
-		"0010100100111100010100110011010010001110011000000000011000" +
-		"00110101110010"
+	var target Bitstring = "00010011010001101100000010110000100011100110" +
+		"11000010011010011101011101000111001010101100111001000101000" +
+		"1110011101011110010101110"
 	_, KHat := makeSubkeys(makeLongkey(bs))
-	output := R(2, bs, KHat)
+	output := bs
+	for i := 0; i < round; i++ {
+		output = R(i, output, KHat)
+	}
 	if output != target {
 		t.Errorf("Output doesn't match target\n")
 		t.Fail()
@@ -259,8 +281,14 @@ func TestR(t *testing.T) {
 // Function TestRInverse checks the RInverse funtions returns bs
 func TestRInverse(t *testing.T) {
 	fmt.Printf("Running\t-\t\tTestRInverse\n")
+	var start Bitstring = "00010011010001101100000010110000100011100110" +
+		"11000010011010011101011101000111001010101100111001000101000" +
+		"1110011101011110010101110"
 	_, KHat := makeSubkeys(makeLongkey(bs))
-	BHati := RInverse(2, R(2, bs, KHat), KHat)
+	var BHati Bitstring = start
+	for i := round - 1; i >= 0; i-- {
+		BHati = RInverse(i, BHati, KHat)
+	}
 	if BHati != bs {
 		t.Errorf("Output from RInverse does not match bs\n")
 		t.Fail()
@@ -283,6 +311,70 @@ func TestRBitslice(t *testing.T) {
 	Bi := RBitsliceInverse(2, BiPlus1, K)
 	if Bi != bs {
 		t.Errorf("BiPlus1 has not been decoded correctly\n")
+		t.Fail()
+	}
+}
+
+// Function TestEncrypt checks the normal encryption algorithm
+func TestEncrypt(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestEncrypt\n")
+	var plainText Bitstring = "10011010011010001101110001110100101001010" +
+		"10010101001110001010010100101000000011111110100101111110000" +
+		"0110101001110011001010110010"
+	var target Bitstring = "11111101110001101000110011011111010011000011" +
+		"11010101101101101100110101000100010011001110100101101101011" +
+		"1001011010111011110100101"
+	encrypted := Encrypt(plainText, makeLongkey(bs))
+	if encrypted != target {
+		t.Errorf("Encrypted does not match target\n")
+		t.Fail()
+	}
+}
+
+// Function TestDecrypt checks the normal decryption algorithm
+func TestDecrypt(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestDecrypt\n")
+	var plainText Bitstring = "10011010011010001101110001110100101001010" +
+		"10010101001110001010010100101000000011111110100101111110000" +
+		"0110101001110011001010110010"
+	var cipher Bitstring = "11111101110001101000110011011111010011000011" +
+		"11010101101101101100110101000100010011001110100101101101011" +
+		"1001011010111011110100101"
+	decrypted := Decrypt(cipher, makeLongkey(bs))
+	if decrypted != plainText {
+		t.Errorf("Decrypted does not match plainText\n")
+		t.Fail()
+	}
+}
+
+// Function TestEncryptBitslice checks the bitslice encryption algorithm
+func TestEncryptBitslice(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestEncryptBitslice\n")
+	var plainText Bitstring = "10011010011010001101110001110100101001010" +
+		"10010101001110001010010100101000000011111110100101111110000" +
+		"0110101001110011001010110010"
+	var cipherTextBitslice Bitstring = "11111101110001101000110011011111" +
+		"01001100001111010101101101101100110101000100010011001110100" +
+		"1011011010111001011010111011110100101"
+	cText := EncryptBitslice(plainText, makeLongkey(bs))
+	if cText != cipherTextBitslice {
+		t.Errorf("EncryptBitslice does not match cipherTextBitslice\n")
+		t.Fail()
+	}
+}
+
+// Function TestDecryptBitslice checks the bitslice decryption algorithm
+func TestDecryptBitslice(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestDecryptBitslice\n")
+	var plainText Bitstring = "10011010011010001101110001110100101001010" +
+		"10010101001110001010010100101000000011111110100101111110000" +
+		"0110101001110011001010110010"
+	var cipherTextBitslice Bitstring = "11111101110001101000110011011111" +
+		"01001100001111010101101101101100110101000100010011001110100" +
+		"1011011010111001011010111011110100101"
+	pText := DecryptBitslice(cipherTextBitslice, makeLongkey(bs))
+	if pText != plainText {
+		t.Errorf("DecryptBitslice does not match plainText\n")
 		t.Fail()
 	}
 }
