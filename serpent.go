@@ -25,7 +25,7 @@ type Hexstring string
 // Each element of this list corresponds to one S-Box. Each S-Box in turn is
 // a list of 16 integers in the range 0..15, without repetitions. Having the
 // value v (say, 14) in position p (say, 0) means that if the input to that
-// S-Box is the pattern p (0, or 0x0) then the output will the pattern v
+// S-Box is the pattern p (0, or 0x0) then the output will be the pattern v
 // (14, or 0xe).
 var SBoxDecimalTable []SBox = []SBox{
 	[]int{3, 8, 15, 1, 10, 6, 5, 11, 14, 13, 4, 2, 7, 0, 9, 12}, // S0
@@ -485,19 +485,20 @@ func (h Hexstring) ToBitstring() (result Bitstring) {
 
 // Return the xor of two bitstrings of equal length as another
 // bitstring of the same length.
-func (s Bitstring) BinaryXor(s2 Bitstring) (result Bitstring) {
+func (s Bitstring) BinaryXor(s2 Bitstring) Bitstring {
 	if len(s) != len(s2) {
 		fmt.Printf("cannot binaryXor bitstrings " +
 			"of different lengths\n")
 	}
+	var result Bitstring = ""
 	for i, b := range s {
-		if string(b) == string(s2[i]) {
+		if uint8(b) == s2[i] {
 			result = result + "0"
 		} else {
 			result = result + "1"
 		}
 	}
-	return
+	return result
 }
 
 // Return the xor of an arbitrary number of bitstrings of the same
@@ -751,12 +752,12 @@ func LTInverse(output Bitstring) Bitstring {
 func LTBitslice(x Bitslice) Bitslice {
 	x[0] = x[0].RotateLeft(13)
 	x[2] = x[2].RotateLeft(3)
-	x[1] = x[1].Xor(Bitslice{x[0], x[2]})
-	x[3] = x[3].Xor(Bitslice{x[2], x[0].ShiftLeft(3)})
+	x[1] = x[1].Xor(Bitslice{x[1], x[0], x[2]})
+	x[3] = x[3].Xor(Bitslice{x[3], x[2], x[0].ShiftLeft(3)})
 	x[1] = x[1].RotateLeft(1)
 	x[3] = x[3].RotateLeft(7)
-	x[0] = x[0].Xor(Bitslice{x[1], x[3]})
-	x[2] = x[2].Xor(Bitslice{x[3], x[1].ShiftLeft(7)})
+	x[0] = x[0].Xor(Bitslice{x[0], x[1], x[3]})
+	x[2] = x[2].Xor(Bitslice{x[2], x[3], x[1].ShiftLeft(7)})
 	x[0] = x[0].RotateLeft(5)
 	x[2] = x[2].RotateLeft(22)
 
@@ -769,12 +770,12 @@ func LTBitslice(x Bitslice) Bitslice {
 func LTBitsliceInverse(x Bitslice) Bitslice {
 	x[2] = x[2].RotateRight(22)
 	x[0] = x[0].RotateRight(5)
-	x[2] = x[2].Xor(Bitslice{x[3], x[1].ShiftLeft(7)})
-	x[0] = x[0].Xor(Bitslice{x[1], x[3]})
+	x[2] = x[2].Xor(Bitslice{x[2], x[3], x[1].ShiftLeft(7)})
+	x[0] = x[0].Xor(Bitslice{x[0], x[1], x[3]})
 	x[3] = x[3].RotateRight(7)
 	x[1] = x[1].RotateRight(1)
-	x[3] = x[3].Xor(Bitslice{x[2], x[0].ShiftLeft(3)})
-	x[1] = x[1].Xor(Bitslice{x[0], x[2]})
+	x[3] = x[3].Xor(Bitslice{x[3], x[2], x[0].ShiftLeft(3)})
+	x[1] = x[1].Xor(Bitslice{x[1], x[0], x[2]})
 	x[2] = x[2].RotateRight(3)
 	x[0] = x[0].RotateRight(13)
 
@@ -832,9 +833,9 @@ func R(i int, BHati Bitstring, KHat Bitslice) Bitstring {
 	xored = xored.Xor(Bitslice{BHati, KHat[i]})
 	SHati := SHat(i, xored)
 
-	if 0 <= i && i <= round - 2 {
+	if 0 <= i && i <= round-2 {
 		BHatiPlus1 = LT(SHati)
-	} else if i == round - 1 {
+	} else if i == round-1 {
 		BHatiPlus1 = BHatiPlus1.Xor(Bitslice{SHati, KHat[round]})
 	} else {
 		fmt.Printf("Round is out of range\n")
@@ -851,10 +852,10 @@ func RInverse(i int, BHatiPlus1 Bitstring, KHat Bitslice) Bitstring {
 	var xored Bitstring
 	var BHati Bitstring
 	var SHati Bitstring
-	
-	if 0 <= i && i <= round - 2 {
+
+	if 0 <= i && i <= round-2 {
 		SHati = LTInverse(BHatiPlus1)
-	} else if i == round - 1 {
+	} else if i == round-1 {
 		SHati = xored.Xor(Bitslice{BHatiPlus1, KHat[round]})
 	} else {
 		fmt.Printf("Round is out of range\n")
@@ -864,6 +865,59 @@ func RInverse(i int, BHatiPlus1 Bitstring, KHat Bitslice) Bitstring {
 	BHati = xored.Xor(Bitslice{xored, KHat[i]})
 
 	return BHati
+}
+
+// Function RBitslice applies round 'i' (Bitslice version) to the 128-bit
+// Bitstring 'Bi' and return another 128-bit Bitstring (conceptually B i+1).
+// Use the appropriately numbered subkey(s) from the 'K' list of 33 128-bit
+// Bitstrings.
+func RBitslice(i int, Bi Bitstring, K Bitslice) Bitstring {
+	var xored Bitstring
+	var BiPlus1 Bitstring
+
+	// 1. Key mixing
+	xored = xored.Xor(Bitslice{Bi, K[i]})
+
+	// 2. S Boxes
+	Si := SBitslice(i, xored.QuadSplit())
+
+	// 3. Linear Transformation
+	if i == round-1 {
+		// In the last round, replaced by an additional key mixing
+		BiPlus1 = xored.Xor(Bitslice{xored.QuadJoin(Si), K[round]})
+	} else {
+		BiPlus1 = xored.QuadJoin(LTBitslice(Si))
+	}
+
+	return BiPlus1
+}
+
+// Function RBitsliceInverse applies the inverse of round 'i' (bitslice
+// version) to the 128-bit Bitstring 'BiPlus1' and return another 128-bit
+// Bitstring (conceptually B i). Use the appropriately numbered subkey(s) from
+// the 'K' list of 33 128-bit Bitstrings.
+func RBitsliceInverse(i int, BiPlus1 Bitstring, K Bitslice) Bitstring {
+	var xoredbitslice Bitslice
+	var Bi Bitstring
+	var SiTemp Bitstring
+	var Si Bitslice
+
+	// 3. Linear Transformation
+	if i == round-1 {
+		// In the last round, replaced by an additional key mixing
+		SiTemp = SiTemp.Xor(Bitslice{BiPlus1, K[round]})
+		Si = SiTemp.QuadSplit()
+	} else {
+		Si = LTBitsliceInverse(BiPlus1.QuadSplit())
+	}
+
+	// 2. S Boxes
+	xoredbitslice = SBitsliceInverse(i, Si)
+
+	// 1. Key mixing
+	Bi = Bi.Xor(Bitslice{Bi.QuadJoin(xoredbitslice), K[i]})
+
+	return Bi
 }
 
 // Function makeSubkeys takes the 256-bit Bitstring 'userkey' and returns two

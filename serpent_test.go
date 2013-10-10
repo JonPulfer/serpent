@@ -44,6 +44,45 @@ func TestQuadJoin(t *testing.T) {
 	}
 }
 
+// Function TestRotateLeft checks the RotateLeft method.
+func TestRotateLeft(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestRotateLeft\n")
+	var target Bitstring = "01010100101110011100101001100101001010100101" +
+		"01110001001100101001010010101110010100101010110010010010101" +
+		"1010100101001010100101010"
+	bsLeft := bs.RotateLeft(11)
+	if bsLeft != target {
+		t.Errorf("bsLeft does not match target\n")
+		t.Fail()
+	}
+}
+
+// Function TestXor checks the Xor function.
+func TestXor(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestXor\n")
+	var target Bitstring = "0000"
+	output := target.Xor(Bitslice{"0000", "0000"})
+	if output != target {
+		t.Errorf("Xor of two 0 Bitstrings does not equal" +
+			" 0 Bitstring\n")
+		t.Fail()
+	}
+	target = "1001"
+	output = target.Xor(Bitslice{"1000", "0001"})
+	if output != target {
+		t.Errorf("Xor of two Bitstrings with 1 at either end" +
+			" does not result in Bitstring with 1 at both ends\n")
+		t.Fail()
+	}
+	target = "00100"
+	output = target.Xor(Bitslice{"00001", "00100", "00001"})
+	if output != target {
+		t.Errorf("Xor of multiple Bitstrings does not match expected" +
+			" output\n")
+		t.Fail()
+	}
+}
+
 // Function TestLinearTranslation takes a 128-bit Bitstring and performs
 // a translation then an inverse translation which should return the
 // original Bitstring
@@ -55,6 +94,7 @@ func TestLinearTranslation(t *testing.T) {
 		t.Fail()
 	}
 }
+
 
 // Function TestSHat applies the parallel array of 32 copies of S-Box #3 and
 // then applies the inverse to return the Bitstring to it's original form.
@@ -71,8 +111,18 @@ func TestSHat(t *testing.T) {
 // and then reverses it.
 func TestLTBitslice(t *testing.T) {
 	fmt.Printf("Running\t-\t\tTestLTBitslice\n")
+	var bss1Target Bitslice = Bitslice{"00000001010101011010100101000110",
+		"11011011100100101111100011110010",
+		"10110001001110011100011111111100",
+		"10111011101100011010001010101011"}
 	bss1 := bs.QuadSplit()
 	bsl1 := LTBitslice(bss1)
+	for i := 0; i < 4; i++ {
+		if bss1[i] != bss1Target[i] {
+			t.Errorf("bss1[%d] is not correct\n", i)
+			t.Fail()
+		}
+	}
 	bss2 := LTBitsliceInverse(bsl1)
 	for i := 0; i < 4; i++ {
 		if bss2[i] != bss1[i] {
@@ -104,6 +154,35 @@ func TestS(t *testing.T) {
 	}
 }
 
+// Function TestSBitslice checks the SBitslice functions
+func TestSBitslice(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestSBitslice\n")
+	var bsnew Bitstring
+	bslice := SBitslice(2, bs.QuadSplit())
+	bssplit := SBitsliceInverse(2, bslice)
+	bsnew = bsnew.QuadJoin(bssplit)
+	if bsnew != bs {
+		t.Errorf("bs not decoded correctly\n")
+		t.Fail()
+	}
+}
+
+// Function TestSBoxBitstring checks whether the loaded SBoxBitstring structure
+// provides the correct pattern / value relationships.
+func TestSBoxBitstring(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestSBoxBitstring\n")
+	normal := SBoxBitstring[4]["1110"]
+	if normal != "0110" {
+		t.Errorf("Normal SBoxBitstring result is not expected value\n")
+		t.Fail()
+	}
+	inverse := SBoxBitstringInverse[4]["0110"]
+	if inverse != "1110" {
+		t.Errorf("SBoxBitstringInverse result is not expected value\n")
+		t.Fail()
+	}
+}
+
 // Function TestKeygen checks the formatting of the userkey.
 func TestKeygen(t *testing.T) {
 	fmt.Printf("Running\t-\t\tTestKeygen\n")
@@ -117,10 +196,18 @@ func TestKeygen(t *testing.T) {
 	var k3 Bitstring = "010001101101011101010100110100011111110001011001" +
 		"00000011100010100011001010110000000101111110001000000011001" +
 		"011011001011010111011"
+	// Expected K[13]
+	var k13 Bitstring = "11010100111111001101000010100101110011000000011" +
+		"00010110100110010101000011111111010101100110011010111101101" +
+		"0111110010010011101011"
 	// Expected KHat[3] from makeSubkeys using above longkey
 	var khat3 Bitstring = "010011000110011001001100101100011010110000111" +
 		"1100101100110001101000110000000101100001011011101101111101" +
 		"0001110010101000001111001"
+	// Expected KHat[15]
+	var khat15 Bitstring = "10110100110111001000100111011110010110001010" +
+		"01011101101011110001110101101010000001001101010110100110001" +
+		"1000100001011101000110101"
 	var K Bitslice
 	var KHat Bitslice
 	ukey := bs
@@ -140,8 +227,16 @@ func TestKeygen(t *testing.T) {
 		t.Errorf("K[3] does not match expected output\n")
 		t.Fail()
 	}
+	if K[13] != k13 {
+		t.Errorf("K[13] does not match expected output\n")
+		t.Fail()
+	}
 	if KHat[3] != khat3 {
 		t.Errorf("KHat[3] does not match expected output\n")
+		t.Fail()
+	}
+	if KHat[15] != khat15 {
+		t.Errorf("KHat[15] does not match expected output\n")
 		t.Fail()
 	}
 }
@@ -168,6 +263,26 @@ func TestRInverse(t *testing.T) {
 	BHati := RInverse(2, R(2, bs, KHat), KHat)
 	if BHati != bs {
 		t.Errorf("Output from RInverse does not match bs\n")
+		t.Fail()
+	}
+}
+
+// Function TestRBitslice checks the RBitslice and RBitsliceInverse functions
+// work correctly.
+func TestRBitslice(t *testing.T) {
+	fmt.Printf("Running\t-\t\tTestRBitslice\n")
+	var BiPlus1Target Bitstring = "1111100000110011100100011000010001111" +
+		"00001010010111001100110010100001101001001000001100011111101" +
+		"10111101101110010110111010111010"
+	K, _ := makeSubkeys(makeLongkey(bs))
+	BiPlus1 := RBitslice(2, bs, K)
+	if BiPlus1 != BiPlus1Target {
+		t.Errorf("BiPlus1 is not correct\n")
+		t.Fail()
+	}
+	Bi := RBitsliceInverse(2, BiPlus1, K)
+	if Bi != bs {
+		t.Errorf("BiPlus1 has not been decoded correctly\n")
 		t.Fail()
 	}
 }
