@@ -102,7 +102,6 @@ func TestLinearTranslation(t *testing.T) {
 	}
 }
 
-
 // Function TestSHat applies the parallel array of 32 copies of S-Box #3 and
 // then applies the inverse to return the Bitstring to it's original form.
 func TestSHat(t *testing.T) {
