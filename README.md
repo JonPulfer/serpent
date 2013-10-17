@@ -3,6 +3,8 @@ Serpent
 
 Serpent encryption cipher
 
+[![Go Walker](http://gowalker.org/api/v1/badge)](http://gowalker.org/github.com/JonPulfer/serpent)
+
 Overview
 --------
 
