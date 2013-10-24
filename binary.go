@@ -65,20 +65,57 @@ func (num *uint128le) binaryXorNEW(other uint128le) {
 
 // Method String returns 'num' as a string using shifts and a mask
 func (num uint128le) String() string {
-	b := uint64(2)
 	s := shifts[2]
-	var a [128 + 1]byte
-	i := len(a)
-	m := uintptr(b) - 1
+	var a [128]byte
+	i := 0
+	m := uintptr(1)
 	for j := 0; j < len(num); j++ {
-		for uint64(num[j]) >= b {
-			i--
-			a[i] = digits[uintptr(num[j])&m]
-			num[j] >>= s
+		for l := 0; l < 8; l++ {
+			for num[j] > 1 {
+				a[i] = digits[uintptr(num[j])&m]
+				num[j] >>= s
+				i++
+				l++
+			}
+			if l < 7 && num[j] == 1 {
+				a[i] = digits[uintptr(num[j])]
+				num[j]--
+			} else {
+				a[i] = digits[uintptr(num[j])]
+			}
+			i++
 		}
-		i--
-		a[i] = digits[uintptr(num[j])]
 	}
-	result := string(a[i:])
+	result := string(a[0:])
+	return result
+}
+
+func fromBitstring(b Bitstring) uint128le {
+	var result uint128le
+	var j int = 0
+	sl := make([]byte, 8)
+	var tempNum byte = 0
+	pt := &tempNum
+	for i := 0; i < 128; {
+		for p, t := range b[i : i+8] {
+			if t == 49 {
+				sl[p] = 1
+			} else {
+				sl[p] = 0
+			}
+		}
+		*pt = 0
+		for q := 7; q >= 0; q-- {
+			if q == 7 && sl[q] == 0 {
+				continue
+			} else if sl[q] == 1 {
+				*pt += 1 << uint(q)
+			}
+		}
+		result[j] = tempNum
+		j++
+		i += 8
+	}
+
 	return result
 }
