@@ -90,7 +90,18 @@ func (num uint128le) String() string {
 	return result
 }
 
+func (bstr *Bitstring) pad(l int) {
+	b := make([]byte, l)
+	for i := 0; i < l; i++ {
+		b[i] = 48
+	}
+	*bstr = Bitstring(b) + *bstr
+}
+
 func fromBitstring(b Bitstring) uint128le {
+	if len(b) < 128 {
+		b.pad(128 - len(b))
+	}
 	var result uint128le
 	var j int = 0
 	sl := make([]byte, 8)

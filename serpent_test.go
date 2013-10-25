@@ -18,7 +18,6 @@ func init() {
 // Function TestQuadSplit tests splitting a 128-bit Bitstring
 // into a 4 element []Bitstring each of 32-bits.
 func TestQuadSplit(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestQuadSplit\n")
 	s := bs.QuadSplit()
 	sl := len(s)
 	if sl == 4 {
@@ -34,7 +33,6 @@ func TestQuadSplit(t *testing.T) {
 // Function TestQuadJoin tests joining a 4 element []Bitstring of 32-bits
 // each into a single 128-bit Bitstring.
 func TestQuadJoin(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestQuadJoin\n")
 	var ts Bitstring
 	s := bs.QuadSplit()
 	ts = ts.QuadJoin(s)
@@ -46,7 +44,6 @@ func TestQuadJoin(t *testing.T) {
 
 // Function TestRotateLeft checks the RotateLeft method.
 func TestRotateLeft(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestRotateLeft\n")
 	var target Bitstring = "01010100101110011100101001100101001010100101" +
 		"01110001001100101001010010101110010100101010110010010010101" +
 		"1010100101001010100101010"
@@ -59,7 +56,6 @@ func TestRotateLeft(t *testing.T) {
 
 // Function TestXor checks the Xor function.
 func TestXor(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestXor\n")
 	var target Bitstring = "0000"
 	output := target.Xor(Bitslice{"0000", "0000"})
 	if output != target {
@@ -83,11 +79,22 @@ func TestXor(t *testing.T) {
 	}
 }
 
+// Function TestXorNew checks xorNew returns the correct result
+func TestXorNew(t *testing.T) {
+	var bstarget Bitstring = "0000"
+	target := fromBitstring(bstarget)
+	bs1 := fromBitstring("0000")
+	bs2 := fromBitstring("0000")
+	bs1.binaryXorNEW(bs2)
+	if bs1 != target {
+		t.Fail()
+	}
+}
+
 // Function TestLinearTranslation takes a 128-bit Bitstring and performs
 // a translation then an inverse translation which should return the
 // original Bitstring
 func TestLinearTranslation(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestLinearTranslation\n")
 	var ltTarget Bitstring = "010100001000001110000000010110111011111110" +
 		"11011100000110011010001110010100110100001011100101011011000" +
 		"110011110000000011011101110"
@@ -105,7 +112,6 @@ func TestLinearTranslation(t *testing.T) {
 // Function TestSHat applies the parallel array of 32 copies of S-Box #3 and
 // then applies the inverse to return the Bitstring to it's original form.
 func TestSHat(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestSHat\n")
 	bs1 := SHat(3, bs)
 	orig := SHatInverse(3, bs1)
 	if orig != bs {
@@ -116,7 +122,6 @@ func TestSHat(t *testing.T) {
 // Function TestLTBitslice applies the equations-based linear transformation
 // and then reverses it.
 func TestLTBitslice(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestLTBitslice\n")
 	var bss1Target Bitslice = Bitslice{"00000001010101011010100101000110",
 		"11011011100100101111100011110010",
 		"10110001001110011100011111111100",
@@ -139,7 +144,6 @@ func TestLTBitslice(t *testing.T) {
 
 // Function TestPTable applies the permutation table sequence.
 func TestPTable(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestPTable\n")
 	bspi := IP(bs)
 	bspf := FP(bspi)
 	bspfr := FPInverse(bspf)
@@ -164,7 +168,6 @@ func TestPTable(t *testing.T) {
 
 // Function TestS checks S function
 func TestS(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestS\n")
 	var target Bitstring = "0111"
 	result := S(2, "0101")
 	if result != target {
@@ -175,7 +178,6 @@ func TestS(t *testing.T) {
 
 // Function TestSBitslice checks the SBitslice functions
 func TestSBitslice(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestSBitslice\n")
 	var bsnew Bitstring
 	bslice := SBitslice(2, bs.QuadSplit())
 	bssplit := SBitsliceInverse(2, bslice)
@@ -189,7 +191,6 @@ func TestSBitslice(t *testing.T) {
 // Function TestSBoxBitstring checks whether the loaded SBoxBitstring structure
 // provides the correct pattern / value relationships.
 func TestSBoxBitstring(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestSBoxBitstring\n")
 	normal := SBoxBitstring[4]["1110"]
 	if normal != "0110" {
 		t.Errorf("Normal SBoxBitstring result is not expected value\n")
@@ -204,7 +205,6 @@ func TestSBoxBitstring(t *testing.T) {
 
 // Function TestKeygen checks the formatting of the userkey.
 func TestKeygen(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestKeygen\n")
 	// Expected output from makeLongkey from 128-bit Bitstring 'bs'
 	var longkey Bitstring = "110011100101001100101001010100101011100010" +
 		"0110010100101001010111001010010101011001001001010110101001" +
@@ -262,7 +262,6 @@ func TestKeygen(t *testing.T) {
 
 // Function TestR checks the R function returns the correct value
 func TestR(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestR\n")
 	var target Bitstring = "00010011010001101100000010110000100011100110" +
 		"11000010011010011101011101000111001010101100111001000101000" +
 		"1110011101011110010101110"
@@ -279,7 +278,6 @@ func TestR(t *testing.T) {
 
 // Function TestRInverse checks the RInverse funtions returns bs
 func TestRInverse(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestRInverse\n")
 	var start Bitstring = "00010011010001101100000010110000100011100110" +
 		"11000010011010011101011101000111001010101100111001000101000" +
 		"1110011101011110010101110"
@@ -297,7 +295,6 @@ func TestRInverse(t *testing.T) {
 // Function TestRBitslice checks the RBitslice and RBitsliceInverse functions
 // work correctly.
 func TestRBitslice(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestRBitslice\n")
 	var BiPlus1Target Bitstring = "1111100000110011100100011000010001111" +
 		"00001010010111001100110010100001101001001000001100011111101" +
 		"10111101101110010110111010111010"
@@ -316,7 +313,6 @@ func TestRBitslice(t *testing.T) {
 
 // Function TestEncrypt checks the normal encryption algorithm
 func TestEncrypt(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestEncrypt\n")
 	var plainText Bitstring = "10011010011010001101110001110100101001010" +
 		"10010101001110001010010100101000000011111110100101111110000" +
 		"0110101001110011001010110010"
@@ -332,7 +328,6 @@ func TestEncrypt(t *testing.T) {
 
 // Function TestDecrypt checks the normal decryption algorithm
 func TestDecrypt(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestDecrypt\n")
 	var plainText Bitstring = "10011010011010001101110001110100101001010" +
 		"10010101001110001010010100101000000011111110100101111110000" +
 		"0110101001110011001010110010"
@@ -348,7 +343,6 @@ func TestDecrypt(t *testing.T) {
 
 // Function TestEncryptBitslice checks the bitslice encryption algorithm
 func TestEncryptBitslice(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestEncryptBitslice\n")
 	var plainText Bitstring = "10011010011010001101110001110100101001010" +
 		"10010101001110001010010100101000000011111110100101111110000" +
 		"0110101001110011001010110010"
@@ -364,7 +358,6 @@ func TestEncryptBitslice(t *testing.T) {
 
 // Function TestDecryptBitslice checks the bitslice decryption algorithm
 func TestDecryptBitslice(t *testing.T) {
-	fmt.Printf("Running\t-\t\tTestDecryptBitslice\n")
 	var plainText Bitstring = "10011010011010001101110001110100101001010" +
 		"10010101001110001010010100101000000011111110100101111110000" +
 		"0110101001110011001010110010"
