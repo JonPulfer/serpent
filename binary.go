@@ -63,6 +63,54 @@ func (num *uint128le) binaryXorNEW(other uint128le) {
 	}
 }
 
+// Function ROL rotates left by 'p' places.
+func ROL(a uint128le, p uint) uint128le {
+	for ; p > 0; p-- {
+		var leftMostBit byte
+		for i := 0; i < len(a); i++ {
+			var leftBit byte
+			if i == 0 {
+				leftMostBit = a[i] & 0x80
+			} else {
+				leftBit = a[i] & 0x80
+				a[i-1] += leftBit >> 7
+			}
+			a[i] <<= 1
+		}
+		a[15] += leftMostBit >> 7
+	}
+	return a
+}
+
+// Function ROR rotates right by 'p' places.
+func ROR(a uint128le, p uint) uint128le {
+	for ; p > 0; p-- {
+		var rightMostBit byte
+		for i := len(a) - 1; i >= 0; i-- {
+			var rightBit byte
+			if i == len(a)-1 {
+				rightMostBit = a[i] & 0x1
+			} else {
+				rightBit = a[i] & 0x1
+				a[i+1] += rightBit << 7
+			}
+			a[i] >>= 1
+		}
+		a[0] += rightMostBit << 7
+	}
+	return a
+}
+
+// Method shiftLeft shifts the bits left.
+func (num *uint128le) shiftLeftNEW(p uint) {
+	num << p
+}
+
+// Method shiftRight shifts the bits right.
+func (num *uint128le) shiftRightNEW(p uint) {
+	num >> p
+}
+
 // Method String returns 'num' as a string using shifts and a mask
 func (num uint128le) String() string {
 	s := shifts[2]
