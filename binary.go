@@ -101,14 +101,32 @@ func ROR(a uint128le, p uint) uint128le {
 	return a
 }
 
-// Method shiftLeft shifts the bits left.
-func (num *uint128le) shiftLeftNEW(p uint) {
-	num << p
+// Function ShiftLeft shifts the bits left.
+func ShiftLeft(t *uint128le, p uint64) {
+	for ; p > 0; p-- {
+		for i := 0; i < len(t); i++ {
+			var leftBit byte
+			if i != 0 {
+				leftBit = t[i] & 0x80
+				t[i-1] += leftBit >> 7
+			}
+			t[i] <<= 1
+		}
+	}
 }
 
-// Method shiftRight shifts the bits right.
-func (num *uint128le) shiftRightNEW(p uint) {
-	num >> p
+// Method ShiftRight shifts the bits right.
+func ShiftRight(a *uint128le, p uint64) {
+	for ; p > 0; p-- {
+		for i := len(a) - 1; i >= 0; i-- {
+			var rightBit byte
+			if i != len(a)-1 {
+				rightBit = a[i] & 0x1
+				a[i+1] += rightBit << 7
+			}
+			a[i] >>= 1
+		}
+	}
 }
 
 // Method String returns 'num' as a string using shifts and a mask
